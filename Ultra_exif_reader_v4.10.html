@@ -13717,7 +13717,15 @@ const EXCLUDED='#srcPrompt,#posPrompt,#negPrompt,#unconfirmedPrompt,#rawBox,#deb
 const ATTR=['title','aria-label','placeholder','data-tip'];
 const original=new WeakMap(),attrOriginal=new WeakMap();
 let language='ko',isApplying=false,scheduled=false;
-function blocked(el){return !!(el&&el.closest&&el.closest(EXCLUDED+',script,style,textarea,option,select,input'))}
+function blocked(el){
+ if(!el||!el.closest)return false;
+ // Only a built-in blank-prompt placeholder is localizable; never rewrite actual prompt text.
+ const prompt=el.closest('#posPrompt,#negPrompt');
+ if(prompt){const count=document.getElementById(prompt.id==='posPrompt'?'posCount':'negCount');const countText=(count?.textContent||'').trim();return !(['없음','None'].includes(countText)&&(prompt.textContent||'').trim().match(/^(?:없음\.|None\.)$/));}
+ const transStatus=el.closest('#trLayer .tr-result .tr-loading,#trLayer .tr-result .tr-error');
+ if(transStatus)return false;
+ return !!el.closest(EXCLUDED+',script,style,textarea,option,select,input');
+}
 function translate(raw){
  if(typeof raw!=='string')return raw;
  const t=raw.trim();if(!t)return raw;
