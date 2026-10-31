@@ -2189,3 +2189,35 @@ Civitai resources:
 좁은 화면:
 - 화면 폭이 좁으면 목록이 위쪽으로 이동하고 2열 또는 1열로 바뀝니다.
 - 번역 창은 아래쪽 시트 형태로 표시됩니다.
+
+
+============================================================
+79. KO / EN 사용자 인터페이스 전환 (v4.10 추가)
+============================================================
+
+화면 좌측 상단 "Ultra Exif Reader  v4.10" 제목의 오른쪽에 KO / EN 전환 버튼이 있습니다.
+- KO: 한국어 화면 (최초 실행 기본값)
+- EN: 영어 화면
+- 선택 언어는 브라우저 localStorage (ultra_exif_reader_ui_language_v410)에 기억됩니다.
+- 일반적인 버튼, 탭, 패널 제목, 도움말, 이미지 분석 창의 안내문 등 화면 표시 문구만 전환합니다.
+- 파일을 다시 분석하거나 메타데이터를 다시 읽지 않습니다.
+- 파일명, 원본 프롬프트, 분석 결과, 원본 메타데이터, 모델·VAE·LoRA 파일명, Seed, Steps 등 실제 저장값은 번역하거나 바꾸지 않습니다.
+- 원문 그대로인 영어/한국어 프롬프트, 번역 결과, 사용자 지시문과 API 키 값은 표시 언어와 무관하게 보존합니다.
+- 프롬프트의 '번역' 버튼은 기존 기능 그대로 한국어 번역을 수행합니다. 화면 EN을 눌렀다고 영문 프롬프트 번역 언어가 바뀌지는 않습니다.
+- 언어를 바꾸어도 파일 목록, 현재 미디어, 카메라·분석 결과, 파일 선택, 줌·영상 재생 상태를 초기화하지 않습니다.
+- 브라우저에서 저장소 사용을 제한하는 경우 언어 선택이 다음 실행에 기억되지 않을 수 있습니다.
+- 화면 너비가 좁으면 제목과 언어 버튼의 간격이 자동으로 조절됩니다.
+
+English:
+Use the KO / EN segmented control next to the v4.10 badge to switch the interface language.
+KO is the default. The preference is saved locally when browser storage is available.
+Switching the language does NOT reprocess files or modify extracted metadata, filenames,
+original prompts, model identifiers, API keys, image analysis results, or translation targets.
+The existing Translate buttons continue to translate prompts to Korean.
+
+v4.10 KO/EN 검증 범위:
+- 기존 메타데이터 비교 사례 427개에서 검출 결과 변경 0건 (일반 워크플로우 300개와 다른 커스텀 생성 노드 100개 포함).
+- 실제 MOSS, Qwen Image, PiD 파일 화면의 핵심 정보가 KO/EN 전환 후 보존되는지 확인.
+- KO→EN→KO, 이미지 분석창, 정적·동적 버튼/도움말, 가로 너비 320·390·700·1440px 브라우저 검증.
+- JavaScript 원본 메타데이터 검출 코드 자체는 변경하지 않고 UI 번역 계층만 별도로 추가.
+- 모든 미지의 브라우저·파일·커스텀 노드에 대한 무회귀 보증은 아닙니다.
