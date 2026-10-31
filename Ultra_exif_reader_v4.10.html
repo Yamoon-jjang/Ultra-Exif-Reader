@@ -789,13 +789,22 @@
     #iaLayer .ia-ollama-model{max-width:100%}
     @media (max-width:760px){#iaLayer{top:10px;bottom:10px;transform:translateX(-50%);max-height:none}.ia-modebar,.ia-upload-grid{grid-template-columns:1fr}.ia-body{padding:12px}.ia-drop{min-height:170px}.ia-result{min-height:160px}.ia-btn{flex:1 1 120px}.ia-close{width:36px;height:36px}.ia-tip::after{display:none}}
 
-  </style>
+  
+    /* v4.10 accessible, keyboard-usable KO/EN segmented language switch */
+    .ultra-i18n-header{gap:8px;min-width:0;align-items:center;}
+    .ultra-language-switch{display:inline-flex;align-items:center;gap:3px;margin-left:auto;padding:3px;border:1px solid rgba(140,174,235,.44);border-radius:999px;background:linear-gradient(140deg,rgba(20,36,60,.96),rgba(7,16,29,.98));box-shadow:0 4px 16px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.05);white-space:nowrap;flex:0 0 auto;}
+    .ultra-lang-choice{appearance:none;border:1px solid transparent;min-width:33px;min-height:27px;padding:4px 8px;background:transparent;color:#a9b9d5;border-radius:999px;font:800 10.5px/1.2 var(--sans);cursor:pointer;transition:color .15s,background .15s,border-color .15s,box-shadow .15s;letter-spacing:.045em;}
+    .ultra-lang-choice:hover{color:#f5fcff;background:rgba(120,166,255,.13)}
+    .ultra-lang-choice.is-active{border-color:rgba(255,230,106,.66);color:#fff6b8;background:linear-gradient(140deg,rgba(86,106,65,.34),rgba(83,74,34,.2));box-shadow:inset 0 0 0 1px rgba(255,240,144,.06),0 0 10px rgba(250,226,123,.09)}
+    .ultra-lang-choice:focus-visible{outline:2px solid #83b5ff;outline-offset:2px}
+    @media(max-width:390px){.ultra-i18n-header{font-size:16px;gap:5px}.ultra-language-switch{margin-left:0}.ultra-lang-choice{min-width:30px;min-height:26px;padding:3px 6px}}
+</style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="sb-head">
-        <div class="title"><span>Ultra</span> Exif Reader <span class="title-badge">v4.10</span></div>
+        <div class="title ultra-i18n-header"><span>Ultra</span> Exif Reader <span class="title-badge">v4.10</span><div class="ultra-language-switch" role="group" aria-label="Interface language / 화면 언어" id="ultraLangSwitch"><button type="button" id="ultraLangKo" data-lang="ko" class="ultra-lang-choice is-active" aria-pressed="true" title="한국어 인터페이스">KO</button><button type="button" id="ultraLangEn" data-lang="en" class="ultra-lang-choice" aria-pressed="false" title="English interface">EN</button></div></div>
         <div class="sub">AI 생성 이미지의 프롬프트·모델 정보 및 카메라 사진의 촬영 데이터(날짜·GPS·셔터·조리개·ISO)를 통합 추출합니다.</div>
       </div>
       <div class="sb-tools">
@@ -13697,6 +13706,89 @@ function collectNestedWorkflowNodes(data){
 
 
   renderList(); renderActive();
+})();
+</script>
+
+<script id="ultraI18nUi" data-layer="presentation-only">
+(()=>{'use strict';
+const dict={"AI 생성 이미지의 프롬프트·모델 정보 및 카메라 사진의 촬영 데이터(날짜·GPS·셔터·조리개·ISO)를 통합 추출합니다.":"Extract prompts and model information from AI-generated images, plus camera EXIF data (dates, GPS, shutter speed, aperture and ISO).","파일 드래그 & 드롭":"Drag & Drop Files","또는 클릭해서 PNG / JPG / JPEG / WEBP / MP4 / WEBM / MKV / MOV / M4V / ZIP 선택":"Or click to select PNG / JPG / JPEG / WebP / MP4 / WebM / MKV / MOV / M4V / ZIP files","파일추가":"Add Files","선택삭제":"Delete Selected","캐시비움":"Clear Cache","전체삭제":"Clear All","파일 수":"Files","AI 파일":"AI Files","카메라 사진":"Camera photo","메타 없음":"No Metadata","이미지/영상을 추가하면 목록이 여기에 표시됩니다.":"Images and videos you add will appear here.","PNG는 텍스트 메타를 비교적 잘 보존하지만, 웹 업로드를 거치면 일부 정보가 사라질 수 있습니다.":"PNG usually preserves textual metadata, but uploading to websites may remove it.","파일을 추가하세요":"Add files to begin","미디어 미리보기":"Media Preview","도구:":"Tool:","신뢰도:":"Confidence:","줌:":"Zoom:","줌 초기화":"Reset Zoom","미리보기 영역":"Preview Area","이미지를 선택하세요":"Select an image","슬라이더":"Slider","클릭해서 줌 모드":"Click to enable zoom","핵심 정보":"Key Information","앱: -":"App: -","앱:":"App:","📷 카메라":"📷 Camera","카메라":"Camera","요약":"Summary","노출":"Exposure","기기":"Device","날짜/시간":"Date / Time","고급":"Advanced","요약 정보 없음":"No summary data","카메라 정보 없음":"No camera data","기기 정보 없음":"No device data","GPS 없음":"No GPS data","날짜/시간 없음":"No date/time data","고급 정보 없음":"No advanced data","프롬프트":"Prompts","원본 입력 / 최종 CLIP / 부정 프롬프트를 분리 표시합니다.":"Original input, final CLIP and negative prompts are shown separately.","번역":"Translate","복사":"Copy","원본 메타 / 디버그":"Raw Metadata / Debug","Debug 보기":"Show Debug","Debug 숨기기":"Hide Debug","🔎 이미지 분석":"🔎 Image Analysis","메타데이터가 없는 이미지를 분석해":"Analyze images without metadata and estimate","이미지 생성용 영어 프롬프트 1개":"one English image-generation prompt","를 추정합니다. API 키는 Ultra Random Prompt v7과 같은 localStorage 키 이름을 공유합니다.":". API keys use the same localStorage keys as Ultra Random Prompt v7.","저비용 기본 · 빠른 이미지 분석":"Low-cost default · Fast image analysis","대안 · 안정적 프롬프트 정리":"Alternative · Consistent prompt drafting","로컬 비전 모델 · API 키 불필요":"Local vision model · No API key","이 기능은 이미지 분석 전용입니다.":"This tool is for image analysis only.","원본 메타데이터 파서에는 영향을 주지 않으며":"It does not affect metadata extraction",", 분석 결과는 이 창 안에서만 확인·복사합니다.":", and results can be viewed/copied only in this dialog.","닫기":"Close","초기화":"Reset","는 보존,":" keeps the result;","는 삭제입니다.":" clears it.","Ollama 모델 선택":"Select Ollama Model","목록 새로고침":"Refresh List","Ollama 이미지 분석은 비전(Vision) 지원 모델에서만 정상적으로 동작합니다.":"Ollama image analysis requires a vision-capable model.","일반 텍스트 모델은 이미지를 분석할 수 없으며, Vision 후보로 인식되지 않는 모델은 분석 실행 전에 차단됩니다.":"Text-only models cannot analyze images. Unsupported models are blocked before analysis.","웹 배포(HTTPS) 페이지에서는 브라우저의 localhost/CORS/Local Network Access 정책 때문에 연결이 차단될 수 있습니다.":"On HTTPS websites, browser localhost/CORS/Local Network Access rules may block connections.","가장 안정적인 방식은 이 HTML을 다운로드해 로컬에서 열고 사용하는 것입니다.":"For best results, download and open this HTML file locally.","한국어 지시어도 입력할 수 있지만, 최종 분석 결과는 이미지 생성용 영어 프롬프트로 고정됩니다.":"You may enter instructions in Korean; the generated prompt is always in English.","Ollama 선택 시 연결 상태를 확인합니다.":"Connection status is checked when Ollama is selected.","Ollama 앱 실행 후 목록 새로고침을 누르세요.":"Start Ollama, then click Refresh List.","분석 지시어":"Analysis Instructions","선택":"Optional","커스텀 분석 지시어":"Custom analysis instructions","는 한글로 적어도 내부적으로 해석되어":" are understood even when entered in Korean, and are applied to the","영문 프롬프트":"English prompt","에 반영됩니다. 명시 요청이 없는 한 인물·의상·배경·조명·구도 등 이미지 고유의 모습은 최대한 유지합니다.":". Unless instructed otherwise, preserve the subjects, outfits, backgrounds, lighting and composition.","API 키 상태":"API Key Status","확인 중...":"Checking...","API 키 입력":"Enter API Key","API 키 삭제":"Delete API Key","이미지 분석에는 선택한 모델의 API 키가 필요합니다.":"Image analysis requires an API key for the selected provider.","입력 내용 보기":"Show typed key","이 브라우저에 저장":"Save in this browser","키 적용":"Apply Key","키 입력 닫기":"Close Key Editor","저장 키는 Ultra Random Prompt와 같은 이름을 사용합니다. OpenAI: ultra_random_prompt_openai_api_key_v1 / Gemini: ultra_random_prompt_gemini_api_key_v1":"Saved keys share their names with Ultra Random Prompt. OpenAI: ultra_random_prompt_openai_api_key_v1 / Gemini: ultra_random_prompt_gemini_api_key_v1","분석 이미지":"Image to Analyze","현재 이미지 사용":"Use Current Image","이미지 선택":"Choose Image","이미지 지우기":"Remove Image","이미지를 선택하면 여기 미리보기가 표시됩니다.":"Selected image preview appears here.","PNG · JPG · WEBP 권장":"PNG · JPG · WebP recommended","선택된 이미지 없음":"No image selected","분석 프롬프트":"Generated Prompt","대기 중":"Idle","이미지를 분석 중...":"Analyzing image...","업로드 이미지를 읽어 프롬프트 1개를 생성합니다.":"Reading the image and generating one prompt.","이미지 분석을 실행하면 여기에 프롬프트 1개가 표시됩니다.":"Run image analysis to see a generated prompt here.","닫아도 현재 페이지에서는 임시 보관됩니다. 초기화를 누르면 삭제됩니다.":"The result is kept until the page reloads. Reset clears it.","🔎 분석 실행":"🔎 Analyze","📋 복사":"📋 Copy","🌐 번역":"🌐 Translate","🌐 한국어 번역":"🌐 Korean Translation","번역 중...":"Translating...","재시도":"Retry","구글 번역에서 열기 ↗":"Open Google Translate ↗","없음":"None","없음.":"None.","사용안함":"Disabled","기본":"Default","복사됨":"Copied","파싱 오류":"Parse error","메타 후보 감지":"Metadata candidate detected","부분 추출":"Partially extracted","생성정보 추출":"Generation metadata extracted","생성정보 없음":"No generation metadata","📷 카메라 정보":"📷 Camera Information","🎞️ 영상":"🎞️ Video","영상":"Video","혼합":"Mixed","(EXIF 데이터 없음)":"(No EXIF data)","원본 보기":"View raw","정밀 스캔":"Deep Scan","정밀 스캔 중...":"Deep scanning...","AI 요약 복사":"Copy AI Summary","프롬프트 복사":"Copy Prompts","원본 메타 복사":"Copy Raw Metadata","📷 촬영정보 복사":"📷 Copy Camera Info","원본 메타 복사됨":"Raw metadata copied","프롬프트 복사됨":"Prompts copied","AI 요약 복사됨":"AI summary copied","촬영정보 복사됨":"Camera information copied","정밀 스캔 시작":"Deep scan started","정밀 스캔 완료":"Deep scan complete","정밀 스캔 완료: 생성정보 없음":"Deep scan complete: no generation metadata","정밀 스캔 오류":"Deep scan error","목록 순서 변경됨":"File order changed","이미 추가된 파일입니다":"File already added","같은 ZIP 파일을 이미 처리 중입니다":"This ZIP is already being processed","ZIP 압축 해제 실패":"ZIP extraction failed","ZIP 안에서 지원 파일을 찾지 못했습니다":"No supported files found in the ZIP","비울 영상 캐시가 없습니다":"No cached videos to clear","휠 확대/축소 · 드래그 이동 · 클릭 종료":"Wheel: zoom · Drag: pan · Click: exit","펼치기":"Expand","접기":"Collapse","복사 실패":"Copy failed","번역 실패. 재시도하거나 구글 번역에서 직접 확인해주세요.":"Translation failed. Retry or use Google Translate.","긴 프롬프트 복사됨 · 구글 번역창에 붙여넣기":"Long prompt copied · Paste into Google Translate","번역할 프롬프트 없음":"No prompt to translate","번역할 긍정 프롬프트 없음":"No positive prompt to translate","긍정 프롬프트 복사됨":"Positive prompt copied","번역할 원본 입력 프롬프트 없음":"No original prompt to translate","원본 입력 프롬프트 복사됨":"Original prompt copied","번역할 미확정 생성 프롬프트 없음":"No unconfirmed prompt to translate","미확정 생성 프롬프트 복사됨":"Unconfirmed prompt copied","번역할 부정 프롬프트 없음":"No negative prompt to translate","부정 프롬프트 복사됨":"Negative prompt copied","불확정":"Unconfirmed","미검출":"Not detected","확정":"Confirmed","부분 확인":"Partially confirmed","최종 CLIP 프롬프트 확인 불가":"Final CLIP prompt cannot be verified","활성 CLIP 경로에서 확인된 변환 전 원본 프롬프트입니다.":"Original prompt confirmed on the active CLIP path before transformation.","중간 텍스트 변환 노드의 실행 출력이 파일에 저장되지 않아 최종 출력 문자열을 확인할 수 없습니다.":"The executed output of an intermediate text transform was not stored, so the final text cannot be verified.","표시할 요약 정보가 없습니다.":"No summary data to display.","카메라 EXIF 정보가 없습니다.\nJPG/JPEG 사진이나 GPS가 포함된 이미지를 불러오세요.":"No camera EXIF information.\nLoad a JPEG photo or an image with GPS metadata.","기기 정보가 없습니다.":"No device data.","GPS 정보가 없습니다.\n위치 정보가 포함된 사진에서만 표시됩니다.":"No GPS data.\nOnly available for photos with location metadata.","날짜/시간 정보가 없습니다.":"No date/time data.","고급 EXIF 정보가 없습니다.":"No advanced EXIF data.","셔터속도":"Shutter Speed","조리개":"Aperture","감도":"Sensitivity","노출 모드":"Exposure Mode","노출 보정":"Exposure Compensation","측광 방식":"Metering Mode","초점거리":"Focal Length","35mm 환산":"35mm Equivalent","노출 프로그램":"Exposure Program","화이트밸런스":"White Balance","플래시":"Flash","색공간":"Color Space","씬 타입":"Scene Type","디지털줌":"Digital Zoom","최대 조리개":"Max Aperture","피사체 거리":"Subject Distance","카메라 기기":"Camera Device","제조사":"Manufacturer","모델":"Model","렌즈":"Lens","소프트웨어":"Software","방향":"Orientation","바디 시리얼":"Body Serial","렌즈 시리얼":"Lens Serial","경도 (Decimal)":"Longitude (Decimal)","위도 (DMS)":"Latitude (DMS)","경도 (DMS)":"Longitude (DMS)","고도":"Altitude","촬영 일시":"Capture Date/Time","읽기 쉬운 형식":"Readable Format","화질 설정":"Image Settings","위치 (GPS)":"Location (GPS)","🗺 Google Maps에서 열기":"🗺 Open Google Maps","자동":"Auto","수동":"Manual","알수없음":"Unknown","평균":"Average","스팟":"Spot","부분":"Partial","표준":"Standard","야경":"Night Scene","정의없음":"Undefined","수동(M)":"Manual (M)","조리개우선(A/Av)":"Aperture Priority (A/Av)","셔터우선(S/Tv)":"Shutter Priority (S/Tv)","발광":"Fired","미발광":"Not fired","사용하지 않는 영상 미리보기 캐시 비우기":"Clear unused video preview cache","클릭: 줌 모드 · 휠: 확대/축소 · 드래그: 이동":"Click: Zoom · Wheel: zoom in/out · Drag: pan","원본 입력 프롬프트 복사":"Copy original input prompt","원본 입력 프롬프트를 앱 내부 레이어에서 번역":"Translate original prompt in the app","파일 안에 남은 미확정 생성 프롬프트 복사":"Copy unconfirmed generation prompt","파일 안에 남은 미확정 생성 프롬프트를 번역":"Translate unconfirmed generation prompt","최종 CLIP 긍정 프롬프트 복사":"Copy final CLIP positive prompt","최종 CLIP 긍정 프롬프트를 앱 내부 레이어에서 번역":"Translate final CLIP positive prompt","부정 프롬프트 복사":"Copy negative prompt","부정 프롬프트를 앱 내부 레이어에서 번역":"Translate negative prompt","ZIP에서 추출된 파일":"File extracted from ZIP","파싱 오류 발생":"Parsing error","창만 닫습니다.\n분석 결과는 현재 페이지를 새로고침하기 전까지 임시 보관됩니다.":"Closes this dialog only.\nResults remain until the page is refreshed.","이 기능은 이미지 분석 전용입니다. 원본 메타데이터 파서에는 영향을 주지 않으며, 분석 결과는 이 창 안에서만 확인·복사합니다. 닫기는 보존, 초기화는 삭제입니다.":"Image analysis does not change metadata extraction. Results are available only in this dialog. Close keeps them; Reset clears them.","한글로 입력해도 됩니다. 내부적으로 의미를 해석해 최종 프롬프트는 영문으로 정리합니다.\n예: 조명과 배경을 더 강조, 의상은 간결히, 프롬프트를 더 영화적으로.":"You can enter instructions in Korean. The final prompt is in English.\nExample: emphasize lighting and background; simplify clothing details.","한글 입력 가능: 예) 조명·배경·구도를 더 강조하고, 인물 묘사는 간결히 정리. 나머지 요소는 이미지 원형을 충실히 유지":"You can type in Korean. E.g., emphasize lighting, background, and composition while preserving the original scene.","현재 분석 모델은":"Current analysis model: ","입니다. API 키 저장은 Ultra Random Prompt v7과 같은 localStorage 키 이름을 공유합니다.":". API keys share localStorage names with Ultra Random Prompt v7.","는 결과 보존,":" keeps results,","는 이미지·분석 결과만 정리합니다.":" clears the image and result only.","키 없음":"No key","Gemini API 키 입력":"Enter Gemini API Key","OpenAI API 키 입력":"Enter OpenAI API Key","Gemini 2.5 Flash 이미지 분석에는 Gemini API 키가 필요합니다. 저장된 키나 하드코딩 키가 있으면 별도 입력 없이 분석할 수 있습니다.":"Gemini 2.5 Flash image analysis requires a Gemini API key. If a saved key is available, it is reused.","GPT-4.1 mini 이미지 분석에는 OpenAI API 키가 필요합니다. 저장된 키나 하드코딩 키가 있으면 별도 입력 없이 분석할 수 있습니다.":"GPT-4.1 mini image analysis requires an OpenAI API key. If a saved key is available, it is reused.","Gemini API 키 저장값은 이 브라우저 localStorage에 보관되며 Ultra Random Prompt v7과 공유됩니다. 저장 키: ultra_random_prompt_gemini_api_key_v1":"The Gemini API key is stored in this browser localStorage and shared with Ultra Random Prompt v7. Key: ultra_random_prompt_gemini_api_key_v1","OpenAI API 키 저장값은 이 브라우저 localStorage에 보관되며 Ultra Random Prompt v7과 공유됩니다. 저장 키: ultra_random_prompt_openai_api_key_v1":"The OpenAI API key is stored in this browser localStorage and shared with Ultra Random Prompt v7. Key: ultra_random_prompt_openai_api_key_v1","Gemini 2.5 Flash로 이미지를 분석 중...":"Analyzing image with Gemini 2.5 Flash...","GPT-4.1 mini로 이미지를 분석 중...":"Analyzing image with GPT-4.1 mini...","Ollama Vision 모델로 이미지를 분석 중...":"Analyzing image with Ollama Vision...","닫아도 현재 페이지에서는 임시 보관됩니다. 초기화는 이미지와 분석 결과만 정리하며 API 키는 유지합니다.":"Results remain on this page when closed. Reset clears the image and analysis result but retains the API key.","기본값입니다.\nGemini 2.5 Flash는 이미지 입력 단가가 낮고 thinkingBudget 0으로 요청합니다.\n단, 민감한 표현에서는 차단될 수 있습니다.":"Default provider.\nGemini 2.5 Flash uses thinkingBudget 0.\nSensitive content may be blocked.","대안 모델입니다.\nGPT-4.1 mini는 출력 단가가 낮고 안정적인 프롬프트 정리에 적합합니다.\nOpenAI API 키만 있을 때 자동 선택됩니다.":"Alternative provider.\nGPT-4.1 mini is useful for prompt drafting.\nAutomatically selected when only an OpenAI key is available.","로컬 Ollama Vision 모델로 이미지 분석을 시도합니다.\nAPI 키는 필요 없지만 Ollama가 실행 중이어야 하며, 일반 텍스트 모델은 이미지를 볼 수 없습니다.":"Analyze images using a local Ollama vision model.\nNo API key is required, but Ollama must be running; text-only models cannot see images.","localhost:11434의 Ollama 모델 목록을 다시 불러옵니다.\nOllama가 실행 중이어야 합니다.":"Refresh the model list from localhost:11434.\nOllama must be running.","선택한 분석 모델의 API 키를 입력하거나 교체합니다.\n저장하면 Ultra Random Prompt v7과 같은 localStorage 키 이름으로 보관됩니다.":"Enter or replace the selected provider API key.\nSaved keys use the same localStorage names as Ultra Random Prompt v7.","선택한 분석 모델의 저장 키만 삭제합니다.\n삭제 전 공유 키 영향에 대한 확인창이 표시됩니다.\n다른 앱의 프리셋이나 UI 설정은 삭제되지 않습니다.":"Delete only the selected provider key.\nYou will be asked for confirmation because the key may be shared with another app.","체크하면 입력한 키를 평문으로 잠시 보여줍니다.\n주변에 다른 사람이 있을 때는 주의하세요.":"Show the API key as plain text temporarily.\nUse caution around other people.","체크하면 API 키를 이 브라우저의 localStorage에 저장합니다.\n체크하지 않으면 이번 창에서만 사용합니다.":"Save the API key in this browser localStorage.\nUncheck to use it for this session only.","입력한 키를 현재 분석 모델에 적용합니다.\n저장 옵션이 켜져 있으면 다음에도 자동 인식됩니다.":"Apply the key to the current analysis model.\nWhen saving is enabled it will be available later.","현재 선택된 이미지를 이미지 분석 레이어로 불러옵니다.\nPNG / JPG / WEBP만 지원하며, 영상은 아직 제외합니다.":"Load the selected image for image analysis.\nPNG/JPEG/WebP only; videos are not supported."};
+const KEY='ultra_exif_reader_ui_language_v410';
+const EXCLUDED='#srcPrompt,#posPrompt,#negPrompt,#unconfirmedPrompt,#rawBox,#debugBox,#exifRawBox,#iaResult,#iaCustomInstruction,#iaApiKeyInput,#iaOllamaModelList .ia-ollama-model .model-name,#fileList .name,#fileList .mini,#fileList .meta2,#fileList img,#viewerImage,#viewerVideo,#iaImagePreview,.generation-stage-channel-text,.mono:not(.ia-result),#trResult,#trLayer .tr-result';
+const ATTR=['title','aria-label','placeholder','data-tip'];
+const original=new WeakMap(),attrOriginal=new WeakMap();
+let language='ko',isApplying=false,scheduled=false;
+function blocked(el){return !!(el&&el.closest&&el.closest(EXCLUDED+',script,style,textarea,option,select,input'))}
+function translate(raw){
+ if(typeof raw!=='string')return raw;
+ const t=raw.trim();if(!t)return raw;
+ let result=dict[t];
+ if(result===undefined){
+   let m;
+   if((m=/^생성 단계 (\d+)$/.exec(t)))result='Generation Stage '+m[1];
+   else if((m=/^텍스트 조건 (\d+)$/.exec(t)))result='Text Condition '+m[1];
+   else if((m=/^영상 캐시 (\d+)개 비움$/.exec(t)))result='Cleared '+m[1]+' cached videos';
+   else if((m=/^ZIP 내부 파일 (\d+)개 추가$/.exec(t)))result='Added '+m[1]+' files from ZIP';
+   else if((m=/^이미 추가된 파일 (\d+)개$/.exec(t)))result=m[1]+' files already added';
+   else if((m=/^중복 (\d+)개 제외$/.exec(t)))result='Skipped '+m[1]+' duplicates';
+   else if((m=/^\d+(?:\.\d+)?\s*chars$/.exec(t)))result=t;
+   else if((m=/^앱: (.+)$/.exec(t)))result='App: '+m[1];
+   else if((m=/^배율 (.+)$/.exec(t)))result='Scale '+m[1];
+   else if((m=/^PiD · (.+?) · 배율 (.+?) · (.+?) · (\d+) Steps$/i.exec(t)))result='PiD · '+m[1]+' · Scale '+m[2]+' · '+m[3]+' · '+m[4]+' Steps';
+   else if((m=/^고도[: ]+(.+)$/.exec(t)))result='Altitude: '+m[1];
+   else if((m=/^([^\n]+?)에서 생성된 이미지로, 생성 메타데이터가 포함되지 않습니다\.$/.exec(t)))result='Image generated with '+m[1]+'; generation metadata is not embedded.';
+ }
+ if(result===undefined)return raw;
+ const prefix=raw.slice(0,raw.indexOf(t));const suffix=raw.slice(raw.indexOf(t)+t.length);
+ return prefix+result+suffix;
+}
+function applyText(n){
+ if(!n || n.nodeType!==3 || blocked(n.parentElement))return;
+ const current=n.nodeValue || '';
+ if(!original.has(n))original.set(n,current);
+ let src=original.get(n);
+ // When the existing application updates this node, adopt the new source value.
+ const previousEn=translate(src);
+ if(current!==src && current!==previousEn){original.set(n,current);src=current}
+ const next=language==='en'?translate(src):src;
+ if(current!==next)n.nodeValue=next;
+}
+function applyAttrs(el){
+ if(!el||el.nodeType!==1||blocked(el))return;
+ let map=attrOriginal.get(el);if(!map){map={};attrOriginal.set(el,map)}
+ for(const attr of ATTR){if(!el.hasAttribute(attr))continue;const current=el.getAttribute(attr);if(!(attr in map))map[attr]=current;const src=map[attr];const oldEn=translate(src);
+ if(current!==src&&current!==oldEn)map[attr]=current;
+ const result=language==='en'?translate(map[attr]):map[attr];if(current!==result)el.setAttribute(attr,result);
+ }
+}
+function process(root){
+ if(!root || (root.nodeType!==1&&root.nodeType!==3&&root.nodeType!==11))return;
+ if(root.nodeType===3){applyText(root);return}
+ if(root.nodeType===1){applyAttrs(root);if(blocked(root))return}
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT);
+ let node;while((node=walker.nextNode())){
+  if(node.nodeType===3)applyText(node);else applyAttrs(node);
+ }
+}
+function scan(){if(isApplying)return;isApplying=true;try{process(document.body)}finally{isApplying=false}}
+function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;scan()})}
+function setLanguage(next){if(next!=='ko'&&next!=='en')return;
+ language=next;document.documentElement.lang=next;
+ for(const k of ['ko','en']){let b=document.getElementById('ultraLang'+(k==='ko'?'Ko':'En'));if(!b)continue;b.classList.toggle('is-active',k===next);b.setAttribute('aria-pressed',String(k===next));}
+ try{localStorage.setItem(KEY,next)}catch(_){/* private browsing */}
+ scan();
+}
+for(const btn of document.querySelectorAll('#ultraLangSwitch button[data-lang]'))btn.addEventListener('click',()=>setLanguage(btn.dataset.lang));
+const observer=new MutationObserver(changes=>{
+ if(isApplying)return;
+ for(const ch of changes){
+  if(ch.type==='characterData'||ch.type==='childList'||(ch.type==='attributes'&&ATTR.includes(ch.attributeName))){schedule();break}
+ }
+});
+observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTR});
+let initial='ko';try{if(localStorage.getItem(KEY)==='en')initial='en'}catch(_){/* private browsing */}
+setLanguage(initial);
+// Testing hook contains only UI state, never model/parser state.
+window.__ultraLanguageUI={setLanguage,get language(){return language},scan};
 })();
 </script>
 </body>
