@@ -1,4 +1,4 @@
-# Ultra Exif Reader v4.10
+# Ultra Exif Reader v4.11
 
 **EXIF·AI 이미지/영상 메타데이터 분석기 | EXIF & AI Image/Video Metadata Reader**
 
@@ -8,11 +8,11 @@
 
 ### 📸 프로그램 화면 / Application preview
 
-![Ultra Exif Reader v4.10 — ComfyUI model, text encoder, VAE, sampling parameters, PiD upscaling and prompt metadata](./ultra-exif-reader-main.webp)
+![Ultra Exif Reader — ComfyUI model, text encoder, VAE, sampling parameters, PiD upscaling and prompt metadata](./ultra-exif-reader-main.webp)
 
-*실제 Ultra Exif Reader v4.10 화면 — 이미지 미리보기, 생성 모델·텍스트 인코더·VAE·Seed·Steps·PiD 업스케일 및 프롬프트 확인*
+*Ultra Exif Reader 화면 예시 — 이미지 미리보기, 생성 모델·텍스트 인코더·VAE·Seed·Steps·PiD 업스케일 및 프롬프트 확인*
 
-### 🌐 KO / EN 언어 전환 (v4.10 최신 개선)
+### 🌐 한국어 / English UI (v4.11)
 
 앱 제목 옆의 **KO / EN 토글**로 한국어와 영어 화면을 즉시 전환할 수 있습니다. 금색 강조로 현재 선택된 언어를 표시하며, 브라우저에 선택 언어가 기억됩니다.
 
@@ -22,7 +22,7 @@
 - 기존 프롬프트 번역 기능은 한국어 번역으로 유지
 - 427개 기존 메타데이터 비교에서 추출 결과 변경 0건, MOSS·Qwen·PiD 이미지 KO↔EN 복귀 검증
 
-> **배포 상태 (2026-10-31):** 저장소의 [최신 HTML 소스](./Ultra_exif_reader_v4.10.html)에는 KO/EN 전환이 반영되어 있습니다. 기존 **v4.10 Release의 ZIP은 아직 이전 배포본**이므로, 새 토글을 이용하려면 HTML 소스 파일을 다운로드하십시오. 배포 ZIP 갱신 후 이 안내를 정리할 예정입니다.
+> **v4.11:** 한·영 전환 기능과 영문 안내문·오류 메시지 번역, 긴 영문 탭·버튼의 잘림 방지 개선이 최신 릴리즈 ZIP에 반영되었습니다. 한국어 UI와 원본 메타데이터는 그대로 유지됩니다.
 
 
 **[📦 최신 버전 다운로드 / Download latest release](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)** · **[📖 한국어 사용법](#다운로드-및-실행)** · **[⚠️ 제한 사항](#제한-사항)**
@@ -44,9 +44,9 @@
 
 ## 다운로드 및 실행
 
-1. **[Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)**에서 v4.10 배포 ZIP 파일을 다운로드합니다.
+1. **[Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)**에서 v4.11 배포 ZIP 파일을 다운로드합니다.
 2. ZIP 압축을 풉니다.
-3. **Ultra_exif_reader_v4.10.html**을 **Google Chrome** 또는 **Microsoft Edge**로 엽니다.
+3. **Ultra_exif_reader_v4.11.html**을 **Google Chrome** 또는 **Microsoft Edge**로 엽니다.
 4. 이미지·영상·ZIP 파일을 앱 화면에 드래그하거나 **파일추가** 버튼을 누릅니다.
 5. 오른쪽에서 핵심 정보, 프롬프트 및 원본 메타데이터를 확인합니다.
 
@@ -62,7 +62,14 @@
 
 **참고:** 영상은 브라우저 코덱에 따라 미리보기가 제한될 수 있습니다. HEIC/HEIF, AVIF, GIF, TIFF, RAW 및 중첩 ZIP 등은 현재 직접 지원하지 않습니다.
 
-## v4.10 주요 개선 사항
+## v4.11 주요 개선 사항
+
+- **English UI:** 영어 화면에서 일부 안내·상태·오류 메시지가 한국어로 표시되던 부분 보완
+- **레이아웃:** 영어 명칭이 긴 EXIF 탭, 미디어 정보 패널, 버튼 등에서 잘림·넘침 개선
+- **한국어 보존:** 기존 한글 UI 배치를 유지하고 메타데이터 판독·원본 프롬프트 처리 로직 변경 없음
+- **배포 정비:** v4.11 HTML·사용 설명서 및 ZIP 패키지 버전 표기 통일
+
+## v4.10 주요 개선 사항 (이전 버전)
 
 - **ComfyUI 생성 정보:** MOSS-Image, Qwen Image 2.1 및 다양한 커스텀 생성 노드의 모델·VAE·Text Encoder 검출 보완
 - **생성 Seed:** 와일드카드·프롬프트 처리 노드의 Seed와 실제 이미지 생성 Seed 구별
@@ -93,7 +100,7 @@
 
 ## English
 
-**Ultra Exif Reader v4.10** is a free, browser-based tool for reading camera EXIF and AI generation metadata embedded in images and videos. It runs as a standalone HTML file in Chrome or Edge.
+**Ultra Exif Reader v4.11** is a free, browser-based tool for reading camera EXIF and AI generation metadata embedded in images and videos. It runs as a standalone HTML file in Chrome or Edge.
 
 ### Features
 
@@ -103,11 +110,12 @@
 - **Model support:** Qwen Image 2.1, MOSS-Image, PiD upscaling metadata, and other supported structures.
 - **Formats:** PNG, JPEG, WebP; supported MP4, WebM, MKV, MOV, M4V videos; and ZIP archives containing supported media.
 - **Optional tools:** Prompt translation and image-to-prompt analysis using Gemini, OpenAI GPT, or local Ollama Vision.
+- **KO / EN interface (v4.11):** Improved English status/help/error messages and responsive layout for longer English labels while preserving the Korean layout and original metadata.
 
 ### Quick start
 
 1. Download the **[latest release ZIP](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)**.
-2. Extract it and open **Ultra_exif_reader_v4.10.html** in Chrome or Edge.
+2. Extract it and open **Ultra_exif_reader_v4.11.html** in Chrome or Edge.
 3. Drag and drop a supported image, video, or ZIP archive into the application.
 4. Inspect the extracted metadata. A Korean manual (**메뉴얼.txt**) is included.
 
@@ -115,4 +123,4 @@
 
 ---
 
-**Ultra Exif Reader v4.10** · [Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases) · [Report an issue](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/issues)
+**Ultra Exif Reader v4.11** · [Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases) · [Report an issue](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/issues)
