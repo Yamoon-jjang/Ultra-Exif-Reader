@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ultra Exif Reader v4.11</title>
+  <title>Ultra Exif Reader v4.12</title>
   <link rel="shortcut icon" href="favicon.png">
   <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
@@ -831,7 +831,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="sb-head">
-        <div class="title ultra-i18n-header"><span>Ultra</span> Exif Reader <span class="title-badge">v4.11</span><div class="ultra-language-switch" role="group" aria-label="Interface language / 화면 언어" id="ultraLangSwitch"><button type="button" id="ultraLangKo" data-lang="ko" class="ultra-lang-choice is-active" aria-pressed="true" title="한국어 인터페이스">KO</button><button type="button" id="ultraLangEn" data-lang="en" class="ultra-lang-choice" aria-pressed="false" title="English interface">EN</button></div></div>
+        <div class="title ultra-i18n-header"><span>Ultra</span> Exif Reader <span class="title-badge">v4.12</span><div class="ultra-language-switch" role="group" aria-label="Interface language / 화면 언어" id="ultraLangSwitch"><button type="button" id="ultraLangKo" data-lang="ko" class="ultra-lang-choice is-active" aria-pressed="true" title="한국어 인터페이스">KO</button><button type="button" id="ultraLangEn" data-lang="en" class="ultra-lang-choice" aria-pressed="false" title="English interface">EN</button></div></div>
         <div class="sub">AI 생성 이미지의 프롬프트·모델 정보 및 카메라 사진의 촬영 데이터(날짜·GPS·셔터·조리개·ISO)를 통합 추출합니다.</div>
       </div>
       <div class="sb-tools">
@@ -2336,7 +2336,7 @@
   function addComfyContainerTextRecord(texts, debug, rawText, sourceLabel='EXIF text'){
     const text = cleanDecodedMetadataText(rawText);
     if (!text) return false;
-    const m = text.match(/^\s*(workflow|prompt|parameters)\s*:/i);
+    const m = text.match(/^\s*(workflow|prompt|parameters|ultra_generation_prompts)\s*:/i);
     if (!m) return false;
     const idx = text.indexOf(':');
     if (idx < 0) return false;
@@ -2347,7 +2347,7 @@
     // Strong-record validation: Image Saver workflow/prompt slots are JSON,
     // while parameters must resemble a real generation-parameter block.
     // This prevents ordinary camera strings or prompt prose from being promoted.
-    if (key === 'workflow' || key === 'prompt'){
+    if (key === 'workflow' || key === 'prompt' || key === 'ultra_generation_prompts'){
       let parsed;
       try { parsed = JSON.parse(value); } catch (_) { return false; }
       // ComfyUI-Image-Saver's own JPEG/WebP drop handler accepts any JSON
@@ -2374,7 +2374,7 @@
   // be mistaken for embedded ComfyUI metadata.
   function scanComfyContainerAsciiRecords(exifBytes, texts, debug, sourceLabel='APP1 EXIF raw'){
     if (!(exifBytes instanceof Uint8Array) || !exifBytes.length) return false;
-    const keys = ['workflow', 'prompt', 'parameters'];
+    const keys = ['workflow', 'prompt', 'parameters', 'ultra_generation_prompts'];
     let found = false;
     const lower = (b) => (b >= 0x41 && b <= 0x5A ? b + 0x20 : b);
 
@@ -3661,15 +3661,19 @@
   function collectTextCandidates(exif, pngTexts, stealthTexts){
     const found = {};
     const add = (key, value) => {
-      const k = String(key || '').trim();
+      let k = String(key || '').trim();
       let raw = U.safeText(value).replace(/\u0000/g, '').trim();
       if (!k || !raw) return;
+      // Image Saver JPEG/WebP stores extra_pnginfo entries as "key:json" in EXIF
+      // slots (ImageDescription etc.). The Ultra prompt record is not prompt prose.
+      const ultraEnvelope = raw.match(/^ultra_generation_prompts\s*:\s*(\{[\s\S]*\})$/i);
+      if (ultraEnvelope){ k = 'ultra_generation_prompts'; raw = ultraEnvelope[1]; }
       // Do not pre-decode JSON metadata blocks.  Some ComfyUI/Ideogram prompt
       // maps legitimately contain escaped sequences like "\\u1234" inside
       // JSON strings.  Blind unicode-unescaping turns them into invalid JSON
       // escape fragments (for example \\u1234 -> \ሴ), so the whole
       // workflow+prompt pair can fail before parseComfy() ever runs.
-      const keyLooksJson = /^(prompt|workflow|parameters|extra_pnginfo|json|parameters_json)$/i.test(k);
+      const keyLooksJson = /^(prompt|workflow|parameters|extra_pnginfo|json|parameters_json|ultra_generation_prompts)$/i.test(k);
       const textLooksJson = /^[\s]*[\{\[]/.test(raw) && /"(?:class_type|workflow|prompt|nodes|inputs)"\s*:/i.test(raw);
       const v = (keyLooksJson || textLooksJson) ? raw : U.decodeUnicodeEscapes(raw);
       if (found[k] === undefined) found[k] = v;
@@ -3688,7 +3692,9 @@
       'Parameters','parameters','Comment','comment','prompt','Prompt','workflow','Workflow','Description','description','ImageDescription','UserComment','XPComment','DuckyComment','Artist','DocumentName','Info','info','Source','source','Generation data','generation data','GenerationParams','generation_params','sd-metadata','sd_metadata','invokeai_metadata','sui_image_params','fooocus_scheme','extraMetadata','parameters_json',
       // WebP/XMP
       'xmp:parameters','xmp:prompt','xmp:workflow','xmp:comment','xmp:description',
-      'Software','Generator','CreatorTool','ProcessingSoftware','Make','Model'
+      'Software','Generator','CreatorTool','ProcessingSoftware','Make','Model',
+      // Ultra generator executed-prompt record (Image Saver EXIF slot, already unwrapped)
+      'ultra_generation_prompts'
     ];
     for (const key of preferred){
       if (exif && exif[key] !== undefined) {
@@ -4319,6 +4325,8 @@
   }
 
   function hasClipPromptTraceWarning(meta){
+    // An executed prompt record from the generator node confirms the Final CLIP text.
+    if (meta?.extra?.ultraPromptRecord) return false;
     const info = clipPromptTraceInfo(meta);
     return !!(info && info.finalUnavailable);
   }
@@ -4708,6 +4716,88 @@
       setClipPromptTraceWarning(meta, info);
       return;
     }
+  }
+
+  // ULTRA_GENERATION_PROMPT_RECORD_20261107
+  // Ultra generator nodes (Ultra Qwen Image Editor + PiD, Ultra Image + PiD) write
+  // the prompt text they actually encoded into extra_pnginfo.ultra_generation_prompts
+  // as { "<node id>": { v, node, positive, negative?, positive_input? } }.
+  // It is executed output saved with the image, so it is the Final CLIP prompt
+  // even when the graph only shows a link (translator / LLM / preview chain).
+  function isUltraPromptRecord(rec){
+    return !!(rec && typeof rec === 'object' && !Array.isArray(rec)
+      && typeof rec.positive === 'string' && typeof rec.node === 'string');
+  }
+
+  function isUltraPromptRecordMap(obj){
+    return !!(obj && typeof obj === 'object' && !Array.isArray(obj)
+      && Object.values(obj).some(isUltraPromptRecord));
+  }
+
+  function pickUltraPromptRecord(recordMap, promptMap){
+    const entries = Object.entries(recordMap || {}).filter(([, rec]) => isUltraPromptRecord(rec));
+    if (!entries.length) return null;
+    if (!promptMap || typeof promptMap !== 'object'){
+      return entries.length === 1 ? { nodeId: entries[0][0], rec: entries[0][1] } : null;
+    }
+    // A record only counts for a node of the same type that exists in this graph.
+    const valid = new Map(entries.filter(([id, rec]) => {
+      const node = promptMap[String(id)];
+      return node && String(node.class_type || node.type || '') === rec.node;
+    }));
+    if (!valid.size) return null;
+    if (valid.size === 1){
+      const [nodeId, rec] = valid.entries().next().value;
+      return { nodeId, rec };
+    }
+    // Several generators: pick the one nearest upstream of a save node.
+    const saveNodes = Object.values(promptMap).filter(node =>
+      /(?:save.?image|image.?save|image.?saver|save.?webp)/i.test(String(node?.class_type || node?.type || '')));
+    let queue = [];
+    for (const saver of saveNodes){
+      for (const v of Object.values(saver?.inputs || {})) if (isWireRef(v)) queue.push(String(v[0]));
+    }
+    const seen = new Set();
+    while (queue.length){
+      const next = [];
+      for (const id of queue){
+        if (seen.has(id)) continue;
+        seen.add(id);
+        if (valid.has(id)) return { nodeId: id, rec: valid.get(id) };
+        const node = promptMap[id];
+        for (const v of Object.values(node?.inputs || {})) if (isWireRef(v)) next.push(String(v[0]));
+      }
+      queue = next;
+    }
+    return null;
+  }
+
+  function applyUltraGenerationPromptRecord(recordMap, promptMap, meta){
+    const picked = pickUltraPromptRecord(recordMap, promptMap);
+    if (!picked) return false;
+    const rec = picked.rec;
+    const positive = normalizeExtractedPromptText(rec.positive || '');
+    if (!positive.trim()) return false;
+    const previousPositive = String(meta.positivePrompt || '').trim();
+    // The traced text (source textbox, translator input, ...) stays as the source.
+    if (!meta.sourcePrompt && previousPositive && previousPositive !== positive.trim()) meta.sourcePrompt = previousPositive;
+    if (!meta.sourcePrompt && typeof rec.positive_input === 'string' && rec.positive_input.trim() && rec.positive_input.trim() !== positive.trim()){
+      meta.sourcePrompt = normalizeExtractedPromptText(rec.positive_input);
+    }
+    meta.positivePrompt = positive;
+    if (typeof rec.negative === 'string' && rec.negative.trim()) meta.negativePrompt = normalizeExtractedPromptText(rec.negative);
+    meta.extra = meta.extra || {};
+    if (meta.extra.clipPromptTrace) delete meta.extra.clipPromptTrace;
+    meta.extra.ultraPromptRecord = { nodeId: picked.nodeId, node: rec.node };
+    if (Array.isArray(meta.debug)) meta.debug.push(`ultra generation prompt record => node ${picked.nodeId} (${rec.node})`);
+    return true;
+  }
+
+  function ultraPromptRecordNote(meta){
+    if (!meta?.extra?.ultraPromptRecord) return '';
+    return String(meta.sourcePrompt || '').trim()
+      ? '최종 CLIP: 생성 노드가 실행 시 기록한 실제 입력 프롬프트 / 원본: 변환 전 텍스트'
+      : '최종 CLIP: 생성 노드가 실행 시 기록한 실제 입력 프롬프트';
   }
 
   function displaySourcePromptText(meta){
@@ -8529,10 +8619,12 @@ function collectNestedWorkflowNodes(data){
     data = unwrapExifReaderValueObject(data);
     expandStr(data, 'prompt');
     expandStr(data, 'workflow');
+    expandStr(data, 'ultra_generation_prompts');
     if (data.extra_pnginfo && typeof data.extra_pnginfo === 'object'){
       data.extra_pnginfo = unwrapExifReaderValueObject(data.extra_pnginfo);
       expandStr(data.extra_pnginfo, 'prompt');
       expandStr(data.extra_pnginfo, 'workflow');
+      expandStr(data.extra_pnginfo, 'ultra_generation_prompts');
     }
 
     const looksLikeDirectPromptMap = Object.values(data).some(
@@ -8659,6 +8751,9 @@ function collectNestedWorkflowNodes(data){
         meta.debug.push(`generation prompt stages => ${stageAnalysis.status}${stageAnalysis.reason ? ` / ${stageAnalysis.reason}` : ''}${stageAnalysis.stages?.length ? ` / ${stageAnalysis.stages.length} stages` : ''}`);
       }
     }
+    const ultraRecordMap = isUltraPromptRecordMap(data.ultra_generation_prompts) ? data.ultra_generation_prompts
+      : (isUltraPromptRecordMap(data.extra_pnginfo?.ultra_generation_prompts) ? data.extra_pnginfo.ultra_generation_prompts : null);
+    if (ultraRecordMap && applyUltraGenerationPromptRecord(ultraRecordMap, promptMap, meta)) ok2 = true;
     if (ok1 || ok2) supplementSavedPiDUpscale(meta, promptMap || (workflow ? savedPiDWorkflowPromptMap(workflow) : null));
     if (ok2 && meta.parseRoute === 'comfy-prompt-map' && looksLikeDirectPromptMap) meta.parseRoute = 'comfy-direct-prompt-map';
     return ok1 || ok2;
@@ -8763,12 +8858,22 @@ function collectNestedWorkflowNodes(data){
     };
     const wfObj = parseJsonCandidate(collected.lower.workflow);
     const ptObj = parseJsonCandidate(collected.lower.prompt);
+    const ultraRecordObj = parseJsonCandidate(collected.lower.ultra_generation_prompts);
+    const ultraRecord = isUltraPromptRecordMap(ultraRecordObj) ? ultraRecordObj : null;
     if (wfObj && ptObj){
       // Image Saver / PNG-style Comfy metadata may expose workflow and prompt as
       // separate records.  Parse them together first, like ComfyUI's PNG
       // extra_pnginfo envelope, so stale workflow widget text cannot outrank the
       // executed prompt-map path.
-      unique.push({ key:'workflow+prompt', text: JSON.stringify({ workflow: wfObj, prompt: ptObj }) });
+      const combo = { workflow: wfObj, prompt: ptObj };
+      if (ultraRecord) combo.ultra_generation_prompts = ultraRecord;
+      unique.push({ key:'workflow+prompt', text: JSON.stringify(combo) });
+    } else if (ultraRecord && (wfObj || ptObj)){
+      // A save path that kept only one Comfy record still carries the executed
+      // prompt record; keep both together so the record can be applied.
+      const combo = wfObj ? { workflow: wfObj } : { prompt: ptObj };
+      combo.ultra_generation_prompts = ultraRecord;
+      unique.push({ key: wfObj ? 'workflow+ultra' : 'prompt+ultra', text: JSON.stringify(combo) });
     }
     const push = (key) => {
       const val = collected.lower[key];
@@ -9424,7 +9529,7 @@ function collectNestedWorkflowNodes(data){
     const isComfyContainerEnvelope = (value) => {
       const text = String(value ?? '').replace(/\x00/g, '').trim();
       if (!text) return false;
-      if (/^(?:workflow|prompt|parameters)\s*:/i.test(text)) return true;
+      if (/^(?:workflow|prompt|parameters|ultra_generation_prompts)\s*:/i.test(text)) return true;
       if (text.length > 240 && /^[{\[]/.test(text) && /"(?:nodes|class_type|workflow|prompt|last_node_id)"\s*:/.test(text)) return true;
       return false;
     };
@@ -11352,7 +11457,7 @@ function collectNestedWorkflowNodes(data){
     } else {
       els.promptPanel.classList.remove('hidden');
       const stageMode = renderGenerationPromptStages(m);
-      if (els.promptPanelNote && !stageMode) els.promptPanelNote.textContent = traceSoftNote || '원본 입력 / 최종 CLIP / 부정 프롬프트를 분리 표시합니다.';
+      if (els.promptPanelNote && !stageMode) els.promptPanelNote.textContent = traceSoftNote || ultraPromptRecordNote(m) || '원본 입력 / 최종 CLIP / 부정 프롬프트를 분리 표시합니다.';
       const stageAnalysis = stageMode ? generationStageAnalysis(m) : null;
       const sourceTextForPanel = stageMode ? srcText : sourceDisplayText;
       const showLegacyPositive = !stageMode

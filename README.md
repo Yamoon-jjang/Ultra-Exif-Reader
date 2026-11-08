@@ -1,4 +1,4 @@
-# Ultra Exif Reader v4.11
+# Ultra Exif Reader v4.12
 
 **EXIF·AI 이미지/영상 메타데이터 분석기 | EXIF & AI Image/Video Metadata Reader**
 
@@ -44,9 +44,9 @@
 
 ## 다운로드 및 실행
 
-1. **[Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)**에서 v4.11 배포 ZIP 파일을 다운로드합니다.
+1. **[Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)**에서 v4.12 배포 ZIP 파일을 다운로드합니다.
 2. ZIP 압축을 풉니다.
-3. **Ultra_exif_reader_v4.11.html**을 **Google Chrome** 또는 **Microsoft Edge**로 엽니다.
+3. **Ultra_exif_reader_v4.12.html**을 **Google Chrome** 또는 **Microsoft Edge**로 엽니다.
 4. 이미지·영상·ZIP 파일을 앱 화면에 드래그하거나 **파일추가** 버튼을 누릅니다.
 5. 오른쪽에서 핵심 정보, 프롬프트 및 원본 메타데이터를 확인합니다.
 
@@ -62,7 +62,13 @@
 
 **참고:** 영상은 브라우저 코덱에 따라 미리보기가 제한될 수 있습니다. HEIC/HEIF, AVIF, GIF, TIFF, RAW 및 중첩 ZIP 등은 현재 직접 지원하지 않습니다.
 
-## v4.11 주요 개선 사항
+## v4.12 주요 개선 사항
+
+- **실제 생성 프롬프트 표시:** Ultra Qwen Image Editor + PiD(v1.0.4+)·Ultra Image + PiD(v1.0.2+)가 이미지에 기록한 실제 프롬프트(`ultra_generation_prompts`)를 읽어 **Final CLIP**에 표시하고, 변환 전 원문은 **Original / Source**에 함께 표시
+- 번역기·LLM 노드를 거친 프롬프트도 번역된 실제 문장 확인 가능 (PNG·JPEG·WebP)
+- 기록이 없는 기존 이미지는 v4.11과 동일하게 표시
+
+## v4.11 주요 개선 사항 (이전 버전)
 
 - **English UI:** 영어 화면에서 일부 안내·상태·오류 메시지가 한국어로 표시되던 부분 보완
 - **레이아웃:** 영어 명칭이 긴 EXIF 탭, 미디어 정보 패널, 버튼 등에서 잘림·넘침 개선
@@ -100,7 +106,7 @@
 
 ## English
 
-**Ultra Exif Reader v4.11** is a free, browser-based tool for reading camera EXIF and AI generation metadata embedded in images and videos. It runs as a standalone HTML file in Chrome or Edge.
+**Ultra Exif Reader v4.12** is a free, browser-based tool for reading camera EXIF and AI generation metadata embedded in images and videos. It runs as a standalone HTML file in Chrome or Edge.
 
 ### Features
 
@@ -110,12 +116,13 @@
 - **Model support:** Qwen Image 2.1, MOSS-Image, PiD upscaling metadata, and other supported structures.
 - **Formats:** PNG, JPEG, WebP; supported MP4, WebM, MKV, MOV, M4V videos; and ZIP archives containing supported media.
 - **Optional tools:** Prompt translation and image-to-prompt analysis using Gemini, OpenAI GPT, or local Ollama Vision.
+- **Executed prompt record (v4.12):** Shows the real prompt recorded by Ultra Qwen Image Editor + PiD v1.0.4+ / Ultra Image + PiD v1.0.2+ (`ultra_generation_prompts`) as Final CLIP, including translated/LLM-converted prompts, with the original text as Source.
 - **KO / EN interface (v4.11):** Improved English status/help/error messages and responsive layout for longer English labels while preserving the Korean layout and original metadata.
 
 ### Quick start
 
 1. Download the **[latest release ZIP](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases/latest)**.
-2. Extract it and open **Ultra_exif_reader_v4.11.html** in Chrome or Edge.
+2. Extract it and open **Ultra_exif_reader_v4.12.html** in Chrome or Edge.
 3. Drag and drop a supported image, video, or ZIP archive into the application.
 4. Inspect the extracted metadata. A Korean manual (**메뉴얼.txt**) is included.
 
@@ -123,4 +130,4 @@
 
 ---
 
-**Ultra Exif Reader v4.11** · [Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases) · [Report an issue](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/issues)
+**Ultra Exif Reader v4.12** · [Releases](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/releases) · [Report an issue](https://github.com/Yamoon-jjang/Ultra-Exif-Reader/issues)

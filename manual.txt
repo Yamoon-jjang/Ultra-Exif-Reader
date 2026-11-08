@@ -1,7 +1,20 @@
-Ultra Exif Reader v4.11 사용 매뉴얼
-작성 기준: Ultra_exif_reader_v4.11.html (v4.10 기반 영문 UI 완성도 개선)
-개정일: 2026-11-03 (이전 판: v4.10, 2026-10-31)
+Ultra Exif Reader v4.12 사용 매뉴얼
+작성 기준: Ultra_exif_reader_v4.12.html (v4.11 기반 실제 생성 프롬프트 기록 판독 추가)
+개정일: 2026-11-07 (이전 판: v4.11, 2026-11-03)
 작성자: 야문 짱
+
+v4.12 주요 변경 — 생성 노드가 기록한 실제 프롬프트 판독
+- 번역기·LLM 노드 등을 거쳐 연결선으로 들어온 프롬프트는 실행 중에만 존재해서 이미지에 남지 않았습니다.
+  그래서 이전 버전은 연결을 거슬러 찾은 변환 전 원문(예: 번역 전 한글)만 표시할 수 있었습니다.
+- Ultra Qwen Image Editor + PiD v1.0.4, Ultra Image + PiD v1.0.2부터 노드가 실제로 모델에 넣은
+  긍정/부정 프롬프트를 이미지 메타데이터 "ultra_generation_prompts" 항목에 기록합니다.
+- v4.12는 이 기록을 읽어 Positive / Final CLIP에 실제 프롬프트(예: 번역된 영문)를,
+  Original / Source에 변환 전 원문을 함께 표시합니다.
+- Image Saver(Simple)로 저장한 PNG·JPEG·WebP 모두 지원합니다. JPEG·WebP의 EXIF 칸에 들어간 기록은
+  카메라 정보나 프롬프트 문장으로 잘못 표시되지 않습니다.
+- 기록의 노드 번호·종류가 현재 그래프와 맞을 때만 사용하며, 생성 노드가 여럿이면 저장 노드와
+  가장 가까운 생성 노드의 기록을 고릅니다.
+- 기록이 없는 기존 이미지는 v4.11과 똑같이 표시됩니다.
 
 v4.11 주요 변경 — 영문 인터페이스 보완
 - 영문 메뉴·안내·상태·오류 메시지 중 한글로 남던 문구를 폭넓게 점검하고 번역 누락을 보완했습니다.
@@ -9,7 +22,7 @@ v4.11 주요 변경 — 영문 인터페이스 보완
 - 한국어 UI의 기존 배치와 메타데이터 분석 결과·원문 프롬프트는 유지합니다.
 - 이미지 분석 및 번역 기능은 사용자가 실행할 때만 기존 방식으로 동작합니다.
 
-이하에는 v4.10 및 그 이전 버전에서 도입된 기능 설명과 검증 기록도 포함됩니다.
+이하에는 v4.11 및 그 이전 버전에서 도입된 기능 설명과 검증 기록도 포함됩니다.
 
 v4.9에서 v4.10 핵심 변경 (최신 검증본 기준)
 - 올인원 생성 노드(UltraImagePiD 및 다른 커스텀 생성 노드)의 모델명·텍스트 인코더·VAE 인식
@@ -144,7 +157,7 @@ v4.3는 단순 버전 표기 변경이 아니라, 이미지 메타 추출과 파
 ============================================================
 
 1) ZIP 압축을 풉니다.
-2) Ultra_exif_reader_v4.11.html을 Edge 또는 Chrome으로 엽니다.
+2) Ultra_exif_reader_v4.12.html을 Edge 또는 Chrome으로 엽니다.
 3) 왼쪽 드롭 영역에 이미지, 영상, ZIP을 끌어다 놓거나 파일추가 버튼을 누릅니다.
    드롭 영역 밖, 앱 화면 아무 곳에 놓아도 추가됩니다.
 4) 분석이 끝나면 왼쪽 목록에서 파일을 선택합니다.
@@ -238,7 +251,7 @@ GPS:
 화면은 왼쪽 사이드바와 오른쪽 상세 영역으로 나뉩니다.
 
 왼쪽 사이드바:
-- 앱 이름과 v4.11 배지
+- 앱 이름과 v4.12 배지
 - 파일 드래그 앤 드롭 영역
 - 파일추가 / 선택삭제 / 캐시비움 / 전체삭제
 - 파일 수 / AI 파일 / 카메라 사진 / 메타 없음 통계
@@ -1427,7 +1440,7 @@ CDN 로드 실패 시에도:
 
 [드래그한 파일과 오른쪽 정보가 다름]
 - v4.10에서는 드래그 시작 시 해당 항목이 즉시 활성화됩니다.
-- 오래된 버전을 열고 있지 않은지 상단 v4.11 배지를 확인하십시오.
+- 오래된 버전을 열고 있지 않은지 상단 v4.12 배지를 확인하십시오.
 
 [영상이 재생되지 않음]
 - 브라우저가 해당 코덱을 지원하지 않을 수 있음
@@ -1533,13 +1546,13 @@ Delete 키        현재 선택 파일 제거
 
 
 ============================================================
-52. v4.11 배포판 확인 방법
+52. v4.12 배포판 확인 방법
 ============================================================
 
-정상 v4.11 파일은 다음 표시를 갖습니다.
+정상 v4.12 파일은 다음 표시를 갖습니다.
 
-- 브라우저 탭 제목: Ultra Exif Reader v4.11
-- 왼쪽 상단 앱 이름(Ultra Exif Reader) 옆 배지: v4.11
+- 브라우저 탭 제목: Ultra Exif Reader v4.12
+- 왼쪽 상단 앱 이름(Ultra Exif Reader) 옆 배지: v4.12
 - 상단 버튼 네 개가 한 줄
 - 통계 네 개가 한 줄
 - 캐시 버튼 문구: 캐시비움
@@ -1815,9 +1828,9 @@ Ideogram의 경우:
 63. 배포 파일 구성
 ============================================================
 
-v4.11 배포 ZIP에는 다음 두 파일이 들어 있습니다.
+v4.12 배포 ZIP에는 다음 두 파일이 들어 있습니다.
 
-1) Ultra_exif_reader_v4.11.html
+1) Ultra_exif_reader_v4.12.html
    - 실행 프로그램
 
 2) Ultra_exif_reader_메뉴얼.txt
@@ -2203,7 +2216,7 @@ Civitai resources:
 79. KO / EN 사용자 인터페이스 전환 (v4.10 추가)
 ============================================================
 
-화면 좌측 상단 "Ultra Exif Reader  v4.11" 제목의 오른쪽에 KO / EN 전환 버튼이 있습니다.
+화면 좌측 상단 "Ultra Exif Reader  v4.12" 제목의 오른쪽에 KO / EN 전환 버튼이 있습니다.
 - KO: 한국어 화면 (최초 실행 기본값)
 - EN: 영어 화면
 - 선택 언어는 브라우저 localStorage (ultra_exif_reader_ui_language_v410)에 기억됩니다.
@@ -2217,7 +2230,7 @@ Civitai resources:
 - 화면 너비가 좁으면 제목과 언어 버튼의 간격이 자동으로 조절됩니다.
 
 English:
-Use the KO / EN segmented control next to the v4.11 badge to switch the interface language.
+Use the KO / EN segmented control next to the v4.12 badge to switch the interface language.
 KO is the default. The preference is saved locally when browser storage is available.
 Switching the language does NOT reprocess files or modify extracted metadata, filenames,
 original prompts, model identifiers, API keys, image analysis results, or translation targets.
