@@ -2,6 +2,8 @@
 
 **EXIF·AI 이미지/영상 메타데이터 분석기 | EXIF & AI Image/Video Metadata Reader**
 
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
 사진의 촬영 정보부터 AI 생성 이미지·영상에 저장된 **모델, 프롬프트, Seed, LoRA, ComfyUI 워크플로우**까지 확인하는 무료 브라우저 도구입니다. 별도 설치 프로그램이나 자체 서버 없이 HTML 파일을 Chrome 또는 Edge에서 실행할 수 있습니다.
 
 > **English:** A free, browser-based EXIF and AI generation metadata reader for images and videos, including ComfyUI workflows, prompts, models, LoRA, and sampling settings. [English guide ↓](#english)
@@ -127,6 +129,28 @@
 4. Inspect the extracted metadata. A Korean manual (**메뉴얼.txt**) is included.
 
 **Important:** Missing metadata is not invented. Optional cloud AI analysis can send selected images to the chosen provider, and translation may send text to a translation service. Some functions rely on CDN-hosted JavaScript libraries.
+
+## 📄 라이선스 / License
+
+**한국어**
+
+[MIT License](LICENSE) — 누구나 무료로 사용 · 수정 · 재배포할 수 있으며, 저작권 표시는 유지해야 합니다.
+앱이 실행 중 CDN에서 불러오는 [ExifReader](https://github.com/mattiasw/ExifReader)(MPL-2.0)와 [pako](https://github.com/nodeca/pako)(MIT · Zlib)는 이 저장소와 배포 ZIP에 포함되어 있지 않으며, 각자의 라이선스를 따릅니다.
+
+- 선택 기능(Gemini · OpenAI · Google 번역)을 쓸 때는 해당 서비스의 이용약관이 적용됩니다.
+- 분석하는 이미지 · 영상과 그 메타데이터의 권리와 공유 책임은 사용자에게 있습니다.
+- 이 프로그램은 있는 그대로 제공되며, 사용으로 생긴 문제에 대해 제작자는 책임지지 않습니다.
+
+**English**
+
+Released under the [MIT License](LICENSE) — free to use, modify and redistribute, provided the copyright notice is kept.
+[ExifReader](https://github.com/mattiasw/ExifReader) (MPL-2.0) and [pako](https://github.com/nodeca/pako) (MIT · Zlib), loaded from a CDN at runtime, are not included in this repository or the release ZIP and remain under their own licenses.
+
+- Optional features (Gemini, OpenAI, Google Translate) are subject to each provider's terms of service.
+- You are responsible for the rights to, and the sharing of, the images, videos and metadata you analyze.
+- Provided "as is", without warranty of any kind; the author is not liable for any problems arising from its use.
+
+Copyright (c) 2026 야문 짱 (Yamoon-jjang)
 
 ---
 
