@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ultra Exif Reader v4.12</title>
+  <title>Ultra Exif Reader v4.13</title>
   <link rel="shortcut icon" href="favicon.png">
   <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
@@ -268,6 +268,24 @@
     .video-summary-text{font-size:12px; line-height:1.45; font-weight:700; color:#e7eef8; word-break:break-word; overflow-wrap:anywhere;}
     .prompt-wrap{display:grid; gap:12px}
     .generation-stage-list{display:grid; gap:12px}
+    .h3-chain-card{border:1px solid rgba(255,196,92,.30); border-left:4px solid rgba(255,196,92,.9); border-radius:16px; overflow:hidden; background:rgba(255,196,92,.045)}
+    .h3-chain-head{display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); background:rgba(255,196,92,.07)}
+    .h3-chain-title{font-size:12px; font-weight:900; color:#ffe7b8}
+    .h3-chain-badge{font-size:10.5px; font-weight:850; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,196,92,.45); color:#ffe7b8; white-space:nowrap}
+    .h3-chain-badge.warn{border-color:rgba(255,120,120,.55); color:#ffc4c4}
+    .h3-chain-body{display:grid; gap:10px; padding:10px 12px}
+    .h3-chain-summary{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px}
+    .h3-chain-stat{border:1px solid var(--line); border-radius:10px; padding:7px 9px; background:rgba(255,255,255,.025)}
+    .h3-chain-stat-label{font-size:10px; font-weight:850; color:var(--muted); letter-spacing:.02em}
+    .h3-chain-stat-value{margin-top:3px; font-size:12px; font-weight:800; word-break:break-all}
+    .h3-chain-table-wrap{overflow:auto; border:1px solid var(--line); border-radius:10px}
+    .h3-chain-table{width:100%; border-collapse:collapse; font-size:11.5px}
+    .h3-chain-table th{font-size:10px; font-weight:850; color:var(--muted); text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; background:rgba(255,255,255,.03)}
+    .h3-chain-table td{padding:6px 8px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:top}
+    .h3-raw{font-family:var(--mono); word-break:break-all}
+    .h3-chain-table tr:last-child td{border-bottom:0}
+    .h3-chain-note{font-size:11px; line-height:1.55; color:var(--muted)}
+    .h3-chain-note.warn{color:#ffc4c4}
     .generation-stage-card{border:1px solid rgba(120,166,255,.28); border-left:4px solid rgba(120,166,255,.92); border-radius:16px; overflow:hidden; background:rgba(120,166,255,.045)}
     .generation-stage-head{display:flex; justify-content:space-between; gap:10px; align-items:flex-start; padding:10px 12px; border-bottom:1px solid var(--line); background:rgba(120,166,255,.07)}
     .generation-stage-title{font-size:12px; font-weight:900; color:#dce8ff}
@@ -831,7 +849,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="sb-head">
-        <div class="title ultra-i18n-header"><span>Ultra</span> Exif Reader <span class="title-badge">v4.12</span><div class="ultra-language-switch" role="group" aria-label="Interface language / 화면 언어" id="ultraLangSwitch"><button type="button" id="ultraLangKo" data-lang="ko" class="ultra-lang-choice is-active" aria-pressed="true" title="한국어 인터페이스">KO</button><button type="button" id="ultraLangEn" data-lang="en" class="ultra-lang-choice" aria-pressed="false" title="English interface">EN</button></div></div>
+        <div class="title ultra-i18n-header"><span>Ultra</span> Exif Reader <span class="title-badge">v4.13</span><div class="ultra-language-switch" role="group" aria-label="Interface language / 화면 언어" id="ultraLangSwitch"><button type="button" id="ultraLangKo" data-lang="ko" class="ultra-lang-choice is-active" aria-pressed="true" title="한국어 인터페이스">KO</button><button type="button" id="ultraLangEn" data-lang="en" class="ultra-lang-choice" aria-pressed="false" title="English interface">EN</button></div></div>
         <div class="sub">AI 생성 이미지의 프롬프트·모델 정보 및 카메라 사진의 촬영 데이터(날짜·GPS·셔터·조리개·ISO)를 통합 추출합니다.</div>
       </div>
       <div class="sb-tools">
@@ -940,6 +958,7 @@
           </div>
           <div class="panel-body">
             <div class="prompt-wrap">
+              <div class="h3-chain-card hidden" id="h3ChainCard"></div>
               <div class="generation-stage-list hidden" id="generationPromptStages"></div>
               <div class="prompt-block src hidden" id="sourcePromptBlock">
                 <div class="prompt-top">
@@ -1151,7 +1170,7 @@
     toolName: $('toolName'), toolConf: $('toolConf'), metaState: $('metaState'), appBadge: $('appBadge'),
     kvGrid: $('kvGrid'), posPrompt: $('posPrompt'), srcPrompt: $('srcPrompt'), negPrompt: $('negPrompt'), unconfirmedPrompt: $('unconfirmedPrompt'),
     positivePromptBlock: $('positivePromptBlock'), sourcePromptBlock: $('sourcePromptBlock'), negativePromptBlock: $('negativePromptBlock'), unconfirmedPromptBlock: $('unconfirmedPromptBlock'), generationPromptStages: $('generationPromptStages'), promptPanelNote: $('promptPanelNote'), posCount: $('posCount'), srcCount: $('srcCount'), negCount: $('negCount'), unconfirmedCount: $('unconfirmedCount'),
-    rawBox: $('rawBox'), debugBox: $('debugBox'), btnToggleDebug: $('btnToggleDebug'),
+    rawBox: $('rawBox'), debugBox: $('debugBox'), btnToggleDebug: $('btnToggleDebug'), h3ChainCard: $('h3ChainCard'),
     metaPanel: $('metaPanel'), btnToggleMetaPanel: $('btnToggleMetaPanel'),
     metaPanelTitle: $('metaPanelTitle'), metaPanelActions: $('metaPanelActions'),
     metaAiBlock: $('metaAiBlock'), metaCamBlock: $('metaCamBlock'), exifRawBox: $('exifRawBox'),
@@ -3271,7 +3290,11 @@
   function parseJsonSliceFromBytes(bytes, start, end){
     let text = '';
     try { text = new TextDecoder('utf-8').decode(bytes.subarray(start, end + 1)); } catch(_){ return null; }
-    try { return { text, parsed: JSON.parse(text), offset: start }; } catch(_){ return null; }
+    try { return { text, parsed: JSON.parse(text), offset: start }; } catch(_){
+      // v4.13: 기존에 실패하던 조각만 NaN/Infinity 토큰 복구 후 재시도
+      const recovered = parseJsonRecoveringNonFinite(text);
+      return recovered && recovered.recovered ? { text, parsed: recovered.value, offset: start } : null;
+    }
   }
 
   function scanBinaryForJsonByKeyword(arrayBuffer, keyword, opts){
@@ -3338,8 +3361,360 @@
     return results;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // v4.13 — 영상 메타 JSON 안전 복구 + MiniMax H3 Chain 실행 기록
+  // ══════════════════════════════════════════════════════════════════════════
+  // Python json.dumps는 NaN / Infinity를 표준 JSON이 아닌 토큰 그대로 기록한다
+  // (예: IS_CHANGED가 NaN을 돌려주는 노드의 "is_changed":[NaN]). 브라우저
+  // JSON.parse는 이를 거부하므로 영상의 prompt JSON 전체가 버려졌다.
+  // 아래 함수는 문자열 리터럴 밖에 있는 토큰만 다루며, 문자열 안의 "NaN",
+  // "Infinity" 같은 문장은 한 글자도 바꾸지 않는다.
+  function rewriteJsonTokensOutsideStrings(text, opts){
+    const o = opts || {};
+    const s = String(text ?? '');
+    const n = s.length;
+    const isWordChar = (c) => !!c && /[A-Za-z0-9_$.]/.test(c);
+    let out = '';
+    let last = 0;
+    let changed = false;
+    let i = 0;
+    while (i < n){
+      const c = s[i];
+      if (c === '"'){
+        i++;
+        while (i < n){
+          const d = s[i];
+          if (d === '\\'){ i += 2; continue; }
+          i++;
+          if (d === '"') break;
+        }
+        continue;
+      }
+      if (o.nonFinite && (c === 'N' || c === 'I' || c === '-')){
+        const tok = s.startsWith('NaN', i) ? 'NaN'
+          : s.startsWith('Infinity', i) ? 'Infinity'
+          : s.startsWith('-Infinity', i) ? '-Infinity' : '';
+        if (tok && !isWordChar(s[i - 1]) && !isWordChar(s[i + tok.length])){
+          out += s.slice(last, i) + 'null';
+          i += tok.length;
+          last = i;
+          changed = true;
+          continue;
+        }
+      }
+      if (o.bigIntAsString && (c === '-' || (c >= '0' && c <= '9')) && !isWordChar(s[i - 1])){
+        let j = i + (c === '-' ? 1 : 0);
+        let k = j;
+        while (k < n && s[k] >= '0' && s[k] <= '9') k++;
+        if (k === j){ i++; continue; }
+        if (s[k] === '.' || s[k] === 'e' || s[k] === 'E'){
+          let m = k + 1;
+          while (m < n && /[0-9eE+\-.]/.test(s[m])) m++;
+          i = m;
+          continue;
+        }
+        const numText = s.slice(i, k);
+        if (!Number.isSafeInteger(Number(numText))){
+          out += s.slice(last, i) + '"' + numText + '"';
+          last = k;
+          changed = true;
+        }
+        i = k;
+        continue;
+      }
+      i++;
+    }
+    if (!changed) return { text: s, changed: false };
+    return { text: out + s.slice(last), changed: true };
+  }
+
+  // 정상 JSON → 그대로 JSON.parse. 실패한 경우에만 비유한(NaN/Infinity) 토큰 복구.
+  function parseJsonRecoveringNonFinite(text){
+    const s = String(text ?? '');
+    try { return { value: JSON.parse(s), recovered: false }; } catch(_){}
+    const fixed = rewriteJsonTokensOutsideStrings(s, { nonFinite: true });
+    if (!fixed.changed) return null;
+    try { return { value: JSON.parse(fixed.text), recovered: true }; } catch(_){ return null; }
+  }
+
+  // H3 Chain 기록 전용: 2^53을 넘는 정수(시드)를 원문 숫자 문자열로 보존해 파싱.
+  function parseJsonPreservingBigIntegers(text){
+    const fixed = rewriteJsonTokensOutsideStrings(String(text ?? ''), { nonFinite: true, bigIntAsString: true });
+    try { return JSON.parse(fixed.text); } catch(_){ return null; }
+  }
+
+  // 동기 SHA-256 (UTF-8) — H3 기록의 prompt_hash 검증용
+  function sha256HexUtf8(str){
+    const msg = new TextEncoder().encode(String(str ?? ''));
+    const K = new Uint32Array([
+      0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+      0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+      0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+      0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+      0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+      0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+      0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+      0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+    const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+    const bitLen = msg.length * 8;
+    const total = (((msg.length + 9) + 63) >> 6) << 6;
+    const buf = new Uint8Array(total);
+    buf.set(msg);
+    buf[msg.length] = 0x80;
+    const dv = new DataView(buf.buffer);
+    dv.setUint32(total - 8, Math.floor(bitLen / 0x100000000));
+    dv.setUint32(total - 4, bitLen >>> 0);
+    const W = new Uint32Array(64);
+    const rotr = (x, r) => (x >>> r) | (x << (32 - r));
+    for (let off = 0; off < total; off += 64){
+      for (let t = 0; t < 16; t++) W[t] = dv.getUint32(off + t * 4);
+      for (let t = 16; t < 64; t++){
+        const s0 = rotr(W[t-15], 7) ^ rotr(W[t-15], 18) ^ (W[t-15] >>> 3);
+        const s1 = rotr(W[t-2], 17) ^ rotr(W[t-2], 19) ^ (W[t-2] >>> 10);
+        W[t] = (W[t-16] + s0 + W[t-7] + s1) >>> 0;
+      }
+      let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (let t = 0; t < 64; t++){
+        const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+        const ch = (e & f) ^ (~e & g);
+        const t1 = (h + S1 + ch + K[t] + W[t]) >>> 0;
+        const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+        const mj = (a & b) ^ (a & c) ^ (b & c);
+        const t2 = (S0 + mj) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+    }
+    return Array.from(H, x => x.toString(16).padStart(8, '0')).join('');
+  }
+
+  // MiniMax H3 Chain 런타임 노드(ChainCurrent / LoopStart / Context …)
+  function isMiniMaxH3ChainRuntimeNode(node){
+    const ct = String(node?.class_type || node?.type || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    return ct.startsWith('minimaxh3chain');
+  }
+
+  const H3_MANIFEST_FORMAT_RE = /^h3_chain_[a-z0-9_]*manifest[a-z0-9_]*$/i;
+  const H3_PLAN_FORMAT_RE = /^h3_chain_plan[a-z0-9_]*$/i;
+
+  // 컨테이너 태그(h3_manifest / h3_plan)에서 원문을 그대로 가져온다.
+  // 태그를 하나도 읽지 못한 경우(대용량 영상 표본에서 moov가 뒤쪽 등)에만
+  // 바이트에서 H3 기록 형식을 찾는다. H3 기록이 없으면 null.
+  function findMiniMaxH3ChainSources(tags, arrayBuffer){
+    const lower = {};
+    for (const [k, v] of Object.entries(tags || {})) lower[String(k).toLowerCase()] = v;
+    let manifestText = typeof lower.h3_manifest === 'string' && lower.h3_manifest.trim() ? lower.h3_manifest : '';
+    let planText = typeof lower.h3_plan === 'string' && lower.h3_plan.trim() ? lower.h3_plan : '';
+    let origin = (manifestText || planText) ? 'container-tags' : '';
+    if (!manifestText && !planText && !Object.keys(tags || {}).length && arrayBuffer){
+      const pick = (keyword, formatRe) => {
+        const hits = scanBinaryForJsonContainingKeyword(arrayBuffer, keyword, { maxHits: 4 });
+        const ok = hits.filter(h => h && h.parsed && typeof h.parsed === 'object' && !Array.isArray(h.parsed) && formatRe.test(String(h.parsed.format || '')));
+        ok.sort((a, b) => b.text.length - a.text.length);
+        return ok.length ? ok[0].text : '';
+      };
+      manifestText = pick('h3_chain_partial_manifest', H3_MANIFEST_FORMAT_RE);
+      planText = pick('h3_chain_plan_archive', H3_PLAN_FORMAT_RE);
+      if (manifestText || planText) origin = 'byte-scan';
+    }
+    if (!manifestText && !planText) return null;
+    return { manifestText, planText, origin };
+  }
+
+  function buildMiniMaxH3ChainRecord(src){
+    if (!src || (!src.manifestText && !src.planText)) return null;
+    const toInt = (v) => {
+      const n = typeof v === 'string' && /^\d+$/.test(v.trim()) ? Number(v.trim()) : v;
+      return Number.isSafeInteger(n) && n >= 0 ? n : null;
+    };
+    const toNum = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null;
+    const toStr = (v) => typeof v === 'string' ? v.trim() : '';
+    const seedText = (v) => {
+      if (typeof v === 'string' && /^\d+$/.test(v.trim())) return v.trim();
+      if (Number.isSafeInteger(v) && v >= 0) return String(v);
+      return '';
+    };
+    const rec = { status: '', origin: src.origin || '', issues: [] };
+
+    const plan = src.planText ? parseJsonPreservingBigIntegers(src.planText) : null;
+    const planOk = !!(plan && typeof plan === 'object' && !Array.isArray(plan)
+      && H3_PLAN_FORMAT_RE.test(toStr(plan.format)) && Array.isArray(plan.shots));
+    if (src.planText && !planOk) rec.issues.push('plan_unreadable');
+
+    const manifest = src.manifestText ? parseJsonPreservingBigIntegers(src.manifestText) : null;
+    const manifestOk = !!(manifest && typeof manifest === 'object' && !Array.isArray(manifest)
+      && H3_MANIFEST_FORMAT_RE.test(toStr(manifest.format)) && Array.isArray(manifest.segments) && manifest.segments.length);
+    if (src.manifestText && !manifestOk) rec.issues.push('manifest_unreadable');
+
+    if (!manifestOk){
+      rec.status = planOk ? 'plan_only' : 'unreadable';
+      if (planOk){
+        rec.plannedClips = plan.shots.length;
+        rec.runName = toStr(plan.run_name);
+      }
+      return rec;
+    }
+
+    rec.status = 'executed';
+    rec.runName = toStr(manifest.run_name) || (planOk ? toStr(plan.run_name) : '');
+    const manifestPlanHash = toStr(manifest.plan_hash);
+    rec.planHashMatch = planOk ? !!(manifestPlanHash && manifestPlanHash === toStr(plan.plan_hash)) : null;
+    if (planOk && !rec.planHashMatch) rec.issues.push('plan_hash_mismatch');
+    const planned = toInt(manifest.planned_clip_count);
+    if (planned) rec.plannedClips = planned;
+    else if (planOk && rec.planHashMatch) rec.plannedClips = plan.shots.length;
+    if (planOk && rec.planHashMatch){
+      const planFrames = toInt(plan.total_delivered_frames);
+      if (planFrames) rec.planTotalFrames = planFrames;
+    }
+
+    const compat = manifest.compatibility && typeof manifest.compatibility === 'object' ? manifest.compatibility : {};
+    rec.fps = toNum(compat.fps);
+    rec.width = toInt(compat.width);
+    rec.height = toInt(compat.height);
+    const transition = compat.transition_policy && typeof compat.transition_policy === 'object' ? compat.transition_policy : {};
+    rec.continuity = toStr(transition.label) || toStr(transition.continuation_mode) || toStr(transition.preset);
+    const audioPolicy = compat.audio_policy && typeof compat.audio_policy === 'object' ? compat.audio_policy : {};
+    rec.audio = toStr(audioPolicy.final_audio) || toStr(compat.audio_mode);
+    rec.durationSeconds = toNum(manifest.duration_seconds);
+
+    const editorShots = planOk && rec.planHashMatch && plan.editor_plan && Array.isArray(plan.editor_plan.shots) ? plan.editor_plan.shots : [];
+    const prefixAll = typeof manifest.prompt_prefix === 'string' ? manifest.prompt_prefix : '';
+    const segments = [];
+    for (const raw of manifest.segments){
+      if (!raw || typeof raw !== 'object') continue;
+      const prompt = typeof raw.prompt === 'string' ? raw.prompt : '';
+      const scenePrompt = typeof raw.scene_prompt === 'string' ? raw.scene_prompt : '';
+      const prefix = typeof raw.prompt_prefix === 'string' ? raw.prompt_prefix : prefixAll;
+      const hash = toStr(raw.prompt_hash).toLowerCase();
+      let promptCheck = 'unverified';
+      if (prompt && /^[0-9a-f]{64}$/.test(hash)) promptCheck = sha256HexUtf8(prompt) === hash ? 'ok' : 'mismatch';
+      const seg = {
+        index: toInt(raw.index),
+        id: toStr(raw.id),
+        seed: seedText(raw.seed),
+        steps: toInt(raw.steps),
+        rawFrames: toInt(raw.raw_frames),
+        deliveredFrames: toInt(raw.delivered_frames),
+        promptCheck,
+        prompt: promptCheck === 'mismatch' ? '' : prompt,
+        scenePrompt,
+        prefix,
+        splitOk: !!(prompt && scenePrompt && prompt === (prefix ? prefix + '\n\n' + scenePrompt : scenePrompt))
+      };
+      if (seg.seed && seg.id){
+        const ed = editorShots.find(x => x && toStr(x.id) === seg.id);
+        const edSeed = ed ? seedText(ed.seed) : '';
+        if (edSeed && edSeed !== seg.seed) rec.issues.push('seed_plan_mismatch');
+      }
+      segments.push(seg);
+    }
+    segments.sort((a, b) => (a.index ?? 1e9) - (b.index ?? 1e9));
+    rec.segments = segments;
+    rec.completedClips = segments.length;
+    rec.totalDeliveredFrames = toInt(manifest.total_delivered_frames);
+    const delivered = segments.map(s => s.deliveredFrames);
+    if (rec.totalDeliveredFrames && delivered.every(v => v !== null)){
+      const sum = delivered.reduce((a, b) => a + b, 0);
+      if (sum !== rec.totalDeliveredFrames) rec.issues.push('frame_sum_mismatch');
+    }
+    if (segments.some(s => s.promptCheck === 'mismatch')) rec.issues.push('prompt_hash_mismatch');
+    if (!rec.totalDeliveredFrames && delivered.length && delivered.every(v => v !== null)) rec.totalDeliveredFrames = delivered.reduce((a, b) => a + b, 0);
+    return rec;
+  }
+
+  function buildMiniMaxH3ChainPromptText(segments){
+    const usable = (segments || []).filter(s => s.prompt);
+    if (!usable.length) return '';
+    const head = (s) => `[Scene ${s.index ?? '?'}${s.id ? ' · ' + s.id : ''}]`;
+    const prefix = usable[0].prefix;
+    const shared = !!prefix && usable.every(s => s.splitOk && s.prefix === prefix);
+    const parts = [];
+    if (shared){
+      parts.push('[Common prefix]', prefix, '');
+      for (const s of usable) parts.push(head(s), s.scenePrompt, '');
+    } else {
+      for (const s of usable) parts.push(head(s), s.prompt, '');
+    }
+    return parts.join('\n').trim();
+  }
+
+  // 영상 경로에서 parseComfy 직후 호출. H3 기록이 없으면 아무것도 바꾸지 않는다.
+  function applyMiniMaxH3ChainRecord(meta, vr){
+    const rec = buildMiniMaxH3ChainRecord(vr && vr.h3Sources);
+    if (!rec) return false;
+    meta.extra = meta.extra || {};
+    meta.debug = Array.isArray(meta.debug) ? meta.debug : [];
+    const stored = Object.assign({}, rec);
+    if (Array.isArray(rec.segments)){
+      stored.segments = rec.segments.map(s => ({
+        index: s.index, id: s.id, seed: s.seed, steps: s.steps,
+        rawFrames: s.rawFrames, deliveredFrames: s.deliveredFrames, promptCheck: s.promptCheck
+      }));
+    }
+    meta.extra.h3Chain = stored;
+    meta.debug.push(`h3 chain record => ${rec.status}${rec.completedClips !== undefined ? `, ${rec.completedClips} executed` : ''}${rec.plannedClips ? ` / ${rec.plannedClips} planned` : ''}${rec.issues.length ? ` · issues: ${[...new Set(rec.issues)].join(', ')}` : ''}`);
+    if (rec.status !== 'executed'){
+      // 실행 기록이 없으면 R2V 노드 위젯에 남은 계획 길이(장면 1)를 영상 프레임으로 표시하지 않는다.
+      const v = meta.extra.video;
+      if (v){
+        delete v.frames;
+        delete v.generationFrames;
+        delete v.generationDuration;
+        delete v.generationFps;
+        delete v.requestedFrames;
+      }
+      return true;
+    }
+
+    const text = buildMiniMaxH3ChainPromptText(rec.segments);
+    if (text){
+      meta.positivePrompt = text;
+      meta.sourcePrompt = '';
+      stored.promptFromRecord = true;
+      if (meta.extra.clipPromptTrace) delete meta.extra.clipPromptTrace;
+      if (meta.extra.unconfirmedGeneratedPrompt) delete meta.extra.unconfirmedGeneratedPrompt;
+      if (meta.metaState !== 'parsed') meta.metaState = 'parsed';
+    }
+    const uniq = (arr) => [...new Set(arr.filter(v => v !== '' && v !== null && v !== undefined).map(String))];
+    const seeds = uniq(rec.segments.map(s => s.seed));
+    const steps = uniq(rec.segments.map(s => s.steps));
+    if (seeds.length === 1) meta.seed = seeds[0];
+    else if (seeds.length > 1) meta.seed = '장면별 상이';
+    if (steps.length === 1) meta.steps = steps[0];
+    else if (steps.length > 1) meta.steps = '장면별 상이';
+
+    const video = meta.extra.video = meta.extra.video || {};
+    if (rec.totalDeliveredFrames){
+      video.frames = String(rec.totalDeliveredFrames);
+      // 장면 하나의 계획 길이(위젯 값)가 전체 생성 길이처럼 보이지 않게 한다.
+      delete video.generationFrames;
+      delete video.generationDuration;
+      delete video.generationFps;
+      delete video.requestedFrames;
+    }
+    if (rec.fps && video.fps === undefined) video.fps = String(rec.fps);
+    return true;
+  }
+
+
   // ── 통합 비디오 메타데이터 추출 ──────────────────────────────────────────
   function extractVideoMetadata(arrayBuffer){
+    const out = extractVideoMetadataCore(arrayBuffer);
+    try {
+      const h3Sources = findMiniMaxH3ChainSources(out.tags, out.container ? arrayBuffer : null);
+      if (h3Sources){
+        out.h3Sources = h3Sources;
+        out.debug.push(`h3 chain sources => ${h3Sources.origin}${h3Sources.manifestText ? ' manifest' : ''}${h3Sources.planText ? ' plan' : ''}`);
+      }
+    } catch(_){ }
+    if (out.nonFiniteRecoveredKeys) out.debug.push(`json non-finite token recovery => ${out.nonFiniteRecoveredKeys}`);
+    delete out.nonFiniteRecoveredKeys;
+    return out;
+  }
+
+  function extractVideoMetadataCore(arrayBuffer){
     const out = {
       container: detectVideoContainer(arrayBuffer),
       tags: {},
@@ -3371,7 +3746,19 @@
           try { parsed = JSON.parse(parsed); } catch(_){}
         }
         return parsed;
-      } catch(_){ return null; }
+      } catch(_){
+        // v4.13: 정상 JSON은 위에서 그대로 처리된다. 여기는 기존에 실패하던
+        // 값만 온다 — Python json.dumps가 남긴 NaN/Infinity 토큰(문자열 밖)만
+        // null로 바꿔 한 번 더 시도한다.
+        const recovered = parseJsonRecoveringNonFinite(s);
+        if (!recovered || !recovered.recovered) return null;
+        out.nonFiniteRecoveredKeys = (out.nonFiniteRecoveredKeys || 0) + 1;
+        let parsed = recovered.value;
+        if (typeof parsed === 'string'){
+          try { parsed = JSON.parse(parsed); } catch(_){}
+        }
+        return parsed;
+      }
     };
 
     const looksLikeScannedParametersJson = (obj) => {
@@ -3949,6 +4336,9 @@
     visited.add(id);
     const node = promptMap[id];
     if (!node) return finish(undefined);
+    // v4.13: MiniMax H3 Chain 노드의 출력(장면 시드·스텝·길이 등)은 실행 중에
+    // 계획에서 꺼내지므로 입력값으로 역산하지 않는다(엉뚱한 위젯 값 방지).
+    if (isMiniMaxH3ChainRuntimeNode(node)) return finish(undefined);
     const inp = node.inputs || {};
     const ct = String(node.class_type || node.type || '').toLowerCase();
 
@@ -4039,7 +4429,23 @@
 
   // 어떤 노드의 inputs 맵이든 PARAM_RULES로 값을 수집 → meta에 기록
   // 와이어면 resolveScalar로 추적, 직접 값이면 바로 사용
+  // v4.13: promptMap 안의 MiniMax H3 Chain 노드 inputs 객체 집합(프롬프트 맵별 1회 계산)
+  const H3_CHAIN_INPUTS_CACHE = new WeakMap();
+  function isMiniMaxH3ChainInputsObject(promptMap, inp){
+    if (!promptMap || typeof promptMap !== 'object' || !inp || typeof inp !== 'object') return false;
+    let set = H3_CHAIN_INPUTS_CACHE.get(promptMap);
+    if (!set){
+      set = new Set();
+      for (const node of Object.values(promptMap)){
+        if (node && typeof node === 'object' && node.inputs && isMiniMaxH3ChainRuntimeNode(node)) set.add(node.inputs);
+      }
+      H3_CHAIN_INPUTS_CACHE.set(promptMap, set);
+    }
+    return set.has(inp);
+  }
+
   function collectParamsFromInputs(promptMap, inp, meta, visited){
+    if (isMiniMaxH3ChainInputsObject(promptMap, inp)) return;
     for (const [k, v] of Object.entries(inp)){
       const rule = PARAM_RULES.find(r => r.re.test(k));
       if (!rule || meta[rule.key] !== '-') continue;
@@ -4164,6 +4570,7 @@
     visited.add(id);
     const node = promptMap[id];
     if (!node || typeof node !== 'object') return '';
+    if (isMiniMaxH3ChainRuntimeNode(node)) return '';
 
     const ct  = String(node.class_type || node.type || '').toLowerCase();
     const inp = node.inputs || {};
@@ -4534,6 +4941,8 @@
     const inp = node.inputs || {};
     const outputSlot = Number(ref[1] || 0);
 
+    // v4.13: H3 Chain 현재 장면 출력은 실행 기록이 있어야만 확인 가능
+    if (isMiniMaxH3ChainRuntimeNode(node)) return { reason:'opaque_text_output_missing', nodeId:id, nodeType:String(node.class_type || node.type || ''), title };
     if (RE.COND_ZERO.test(ct)) return null;
     if (RE.CLIP_ENCODE.test(ct)) return detectMissingOpaqueTextOutputOnPath(promptMap, inp.text, new Set(visited));
     {
@@ -4804,6 +5213,8 @@
     const src = String(meta?.sourcePrompt || '').trim();
     if (src) return src;
     const pos = String(meta?.positivePrompt || '').trim();
+    // v4.13: H3 Chain 실행 기록 프롬프트는 실행된 최종 텍스트이므로 원본 칸에 복제하지 않음
+    if (meta?.extra?.h3Chain?.promptFromRecord) return '';
     return hasClipPromptTraceWarning(meta) ? '' : pos;
   }
 
@@ -5035,6 +5446,7 @@
     visited.add(visitKey);
     const node = promptMap[id];
     if (!node || typeof node !== 'object') return '';
+    if (isMiniMaxH3ChainRuntimeNode(node)) return '';
 
     const ct  = String(node.class_type || node.type || '').toLowerCase();
     const title = String(node._meta?.title || node.title || '');
@@ -6767,9 +7179,34 @@ function collectNestedWorkflowNodes(data){
     return out;
   }
 
+  // v4.13: 워크플로우에서 MiniMax H3 Chain 노드 출력이 연결된 위젯 입력 이름(노드별)
+  function buildMiniMaxH3ChainLinkedWidgetMap(data, nodes){
+    const map = new Map();
+    const chainIds = new Set((nodes || []).filter(n => isMiniMaxH3ChainRuntimeNode(n)).map(n => String(n.id)));
+    if (!chainIds.size) return map;
+    const fromChain = new Set();
+    for (const l of (Array.isArray(data?.links) ? data.links : [])){
+      if (Array.isArray(l)){ if (chainIds.has(String(l[1]))) fromChain.add(String(l[0])); }
+      else if (l && typeof l === 'object' && chainIds.has(String(l.origin_id))) fromChain.add(String(l.id));
+    }
+    if (!fromChain.size) return map;
+    for (const n of nodes){
+      for (const input of (Array.isArray(n?.inputs) ? n.inputs : [])){
+        if (!input || input.link === null || input.link === undefined || !fromChain.has(String(input.link))) continue;
+        const name = String(input.widget?.name || input.name || '').trim();
+        if (!name) continue;
+        const key = String(n.id);
+        if (!map.has(key)) map.set(key, new Set());
+        map.get(key).add(name);
+      }
+    }
+    return map;
+  }
+
   function parseComfyWorkflow(data, meta){
     const nodes = Array.isArray(data?.nodes) ? data.nodes : [];
     if (!nodes.length) return false;
+    const h3ChainLinkedWidgets = buildMiniMaxH3ChainLinkedWidgetMap(data, nodes);
     const samplers = [];
     const pidWorkflowCandidates = [];
     const activeWorkflowIds = collectActiveWorkflowNodeIds(data);
@@ -6784,7 +7221,11 @@ function collectNestedWorkflowNodes(data){
       const rawWidgets = node?.widgets_values;
       const widgets = widgetValuesArray(rawWidgets);
       const inputs  = node?.inputs || {};
-      const directInputs = Array.isArray(inputs) ? workflowNodeNamedWidgetInputs(node) : inputs;
+      let directInputs = Array.isArray(inputs) ? workflowNodeNamedWidgetInputs(node) : inputs;
+      const h3ChainStale = h3ChainLinkedWidgets.size ? h3ChainLinkedWidgets.get(String(node?.id)) : null;
+      if (h3ChainStale && directInputs && typeof directInputs === 'object' && !Array.isArray(directInputs)){
+        directInputs = Object.fromEntries(Object.entries(directInputs).filter(([k]) => !h3ChainStale.has(k)));
+      }
       const h3Inputs = Array.isArray(inputs) ? workflowMiniMaxH3Inputs(node, directInputs) : directInputs;
       const isMiniMaxH3CoreNode = collectMiniMaxH3Params(meta, type, title, h3Inputs, null);
       if (!isMiniMaxH3CoreNode) collectWorkflowVideoHintsFromWidgets(meta, type, title, rawWidgets);
@@ -6803,7 +7244,7 @@ function collectNestedWorkflowNodes(data){
       }
       collectUpscaleNodeInfo(meta, type, title, directInputs, widgets);
       collectVideoParamsFromInputs(meta, directInputs, null);
-      collectParamsFromInputs(null, directInputs, meta);
+      if (!isMiniMaxH3ChainRuntimeNode(node)) collectParamsFromInputs(null, directInputs, meta);
       collectSamplingParamsFromInputs(null, directInputs, meta, `${type} ${title}`);
       extractSamplerHintsFromWidgets(meta, widgets);
 
@@ -9025,6 +9466,7 @@ function collectNestedWorkflowNodes(data){
       } else {
         meta.debug.push('large video: no workflow/prompt JSON found in sampled ranges');
       }
+      applyMiniMaxH3ChainRecord(meta, vr);
 
       // 대용량 영상은 전체 파일을 읽지 않으므로 컨테이너 직접 파싱 대신
       // 브라우저의 metadata probe로 실제 영상 해상도/길이를 보완한다.
@@ -9272,6 +9714,7 @@ function collectNestedWorkflowNodes(data){
       } else {
         meta.debug.push('video: no workflow/prompt JSON found');
       }
+      applyMiniMaxH3ChainRecord(meta, vr);
 
       // 실제 비디오 컨테이너/브라우저가 알려주는 크기는 워크플로우 내부 resize/scale 문자열보다 우선한다.
       if (vinfo.width) meta.width = String(vinfo.width);
@@ -11286,6 +11729,104 @@ function collectNestedWorkflowNodes(data){
     return parts.join('\n\n');
   }
 
+  // v4.13 — MiniMax H3 Chain 실행 기록 카드 (h3Chain 기록이 있는 영상에서만 표시)
+  function h3ChainPromptNote(meta){
+    return meta?.extra?.h3Chain?.promptFromRecord
+      ? '최종 CLIP: H3 Chain 실행 기록(h3_manifest)에 저장된 장면별 실제 프롬프트 · SHA-256 검증'
+      : '';
+  }
+
+  function renderMiniMaxH3ChainCard(meta){
+    const card = els.h3ChainCard;
+    if (!card) return false;
+    const rec = meta?.extra?.h3Chain;
+    if (!rec || typeof rec !== 'object' || !rec.status){
+      card.classList.add('hidden');
+      card.innerHTML = '';
+      return false;
+    }
+    const E = U.escapeHtml;
+    const fmt = (n) => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-US') : '-';
+    const stat = (label, valueHtml) => `<div class="h3-chain-stat"><div class="h3-chain-stat-label">${E(label)}</div><div class="h3-chain-stat-value">${valueHtml}</div></div>`;
+    const issues = new Set(Array.isArray(rec.issues) ? rec.issues : []);
+    const notes = [];
+    let badge = '';
+    let badgeWarn = false;
+    let body = '';
+
+    if (rec.status === 'executed'){
+      badge = issues.size ? '확인 필요' : '실행 기록 확인';
+      badgeWarn = issues.size > 0;
+      const segs = Array.isArray(rec.segments) ? rec.segments : [];
+      const v = meta.extra?.video || {};
+      const stats = [];
+      stats.push(stat('완료 장면', `${fmt(rec.completedClips)}${rec.plannedClips ? ` <span style="color:var(--muted)">/</span> ${fmt(rec.plannedClips)}` : ''}`));
+      if (rec.totalDeliveredFrames) stats.push(stat('최종 프레임', `${fmt(rec.totalDeliveredFrames)}${rec.fps ? ` <span style="color:var(--muted)">·</span> ${E(String(rec.fps))} fps` : ''}`));
+      if (rec.durationSeconds) stats.push(stat('기록된 길이', `${E(String(Math.round(rec.durationSeconds * 100) / 100))}s`));
+      if (rec.planTotalFrames) stats.push(stat('계획 전체 프레임', fmt(rec.planTotalFrames)));
+      if (rec.continuity) stats.push(stat('장면 연결', `<span class="h3-raw">${E(rec.continuity)}</span>`));
+      if (rec.audio) stats.push(stat('오디오', `<span class="h3-raw">${E(rec.audio)}</span>`));
+      if (rec.runName) stats.push(stat('실행 이름', `<span class="h3-raw">${E(rec.runName)}</span>`));
+
+      const rows = segs.map(s => {
+        const check = s.promptCheck === 'ok' ? '일치' : s.promptCheck === 'mismatch' ? '불일치 — 제외' : '해시 없음';
+        return `<tr>
+          <td>${E(String(s.index ?? '-'))}</td>
+          <td class="h3-raw">${E(s.id || '-')}</td>
+          <td class="h3-raw">${E(s.seed || '-')}</td>
+          <td>${E(s.steps === null || s.steps === undefined ? '-' : String(s.steps))}</td>
+          <td>${E(s.rawFrames === null || s.rawFrames === undefined ? '-' : fmt(s.rawFrames))}</td>
+          <td>${E(s.deliveredFrames === null || s.deliveredFrames === undefined ? '-' : fmt(s.deliveredFrames))}</td>
+          <td>${E(check)}</td>
+        </tr>`;
+      }).join('');
+      const table = segs.length ? `<div class="h3-chain-table-wrap"><table class="h3-chain-table">
+        <thead><tr><th>장면</th><th>ID</th><th>Seed</th><th>Steps</th><th>생성 프레임</th><th>최종 프레임</th><th>프롬프트 검증</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>` : '';
+
+      if (rec.plannedClips && rec.completedClips && rec.plannedClips > rec.completedClips){
+        const first = rec.completedClips + 1;
+        notes.push({ warn:false, text: first === rec.plannedClips
+          ? `${first}번 장면은 계획만 있고 실행 기록이 없어 실행 결과로 표시하지 않습니다.`
+          : `${first}~${rec.plannedClips}번 장면은 계획만 있고 실행 기록이 없어 실행 결과로 표시하지 않습니다.` });
+      }
+      if (issues.has('plan_hash_mismatch')) notes.push({ warn:true, text:'계획(h3_plan)과 실행 기록(h3_manifest)의 계획 해시가 달라 계획 정보는 사용하지 않았습니다.' });
+      if (issues.has('plan_unreadable')) notes.push({ warn:true, text:'계획(h3_plan)을 읽을 수 없어 실행 기록만 표시합니다.' });
+      if (issues.has('seed_plan_mismatch')) notes.push({ warn:true, text:'일부 장면의 계획 시드와 실행 기록 시드가 다릅니다. 실행 기록 값을 표시합니다.' });
+      if (issues.has('frame_sum_mismatch')) notes.push({ warn:true, text:'장면별 최종 프레임 합계가 기록된 전체 프레임 수와 다릅니다.' });
+      if (issues.has('prompt_hash_mismatch')) notes.push({ warn:true, text:'프롬프트 해시가 맞지 않는 장면은 프롬프트에서 제외했습니다.' });
+      const dur = Number(v.duration);
+      if (rec.totalDeliveredFrames && rec.fps && Number.isFinite(dur) && dur > 0){
+        const actual = dur * rec.fps;
+        if (Math.abs(actual - rec.totalDeliveredFrames) > Math.max(2, rec.fps * 0.1)){
+          notes.push({ warn:true, text:'실제 영상 길이와 기록된 프레임 수가 맞지 않습니다. 편집되었거나 다른 영상일 수 있습니다.' });
+          badge = '확인 필요';
+          badgeWarn = true;
+        }
+      }
+      notes.push({ warn:false, text:'Seed·Steps·프레임은 장면마다 실행 기록에 저장된 값이며, 아래 Positive에는 공통 프롬프트와 장면별 프롬프트가 원문 그대로 표시됩니다.' });
+      body = `<div class="h3-chain-summary">${stats.join('')}</div>${table}`;
+    } else if (rec.status === 'plan_only'){
+      badge = '계획만 있음';
+      badgeWarn = true;
+      body = rec.plannedClips ? `<div class="h3-chain-summary">${stat('계획', `${E(`장면 ${rec.plannedClips}개 계획 — 실행 결과로 표시하지 않음`)}`)}</div>` : '';
+      notes.push({ warn:true, text:'이 파일에는 장면 계획(h3_plan)만 있고 실행 기록(h3_manifest)이 없어 실제 실행된 프롬프트·Seed·Steps를 확정할 수 없습니다.' });
+    } else {
+      badge = '기록 읽기 실패';
+      badgeWarn = true;
+      notes.push({ warn:true, text:'H3 Chain 기록이 있지만 손상되어 읽을 수 없습니다. 실제 실행된 프롬프트·Seed·Steps를 표시하지 않습니다.' });
+    }
+
+    card.innerHTML = `<div class="h3-chain-head">
+        <div class="h3-chain-title">MiniMax H3 Chain 실행 기록</div>
+        <span class="h3-chain-badge${badgeWarn ? ' warn' : ''}">${E(badge)}</span>
+      </div>
+      <div class="h3-chain-body">${body}${notes.map(n => `<div class="h3-chain-note${n.warn ? ' warn' : ''}">${E(n.text)}</div>`).join('')}</div>`;
+    card.classList.remove('hidden');
+    return true;
+  }
+
+
   function renderGenerationPromptStages(meta){
     const container = els.generationPromptStages;
     if (!container) return false;
@@ -11353,6 +11894,7 @@ function collectNestedWorkflowNodes(data){
       if (els.unconfirmedPrompt) els.unconfirmedPrompt.textContent = '';
       if (els.unconfirmedCount) els.unconfirmedCount.textContent = '없음';
       if (els.generationPromptStages){ els.generationPromptStages.innerHTML = ''; els.generationPromptStages.classList.add('hidden'); }
+      renderMiniMaxH3ChainCard(null);
       if (els.promptPanelNote) els.promptPanelNote.textContent = '원본 입력 / 최종 CLIP / 부정 프롬프트를 분리 표시합니다.';
       els.posCount.textContent = '0 chars';
       els.negCount.textContent = '0 chars';
@@ -11454,10 +11996,12 @@ function collectNestedWorkflowNodes(data){
     if ((isCam && !isAI) || (isVideo && !isAI)) {
       els.promptPanel.classList.add('hidden');
       renderGenerationPromptStages(null);
+      renderMiniMaxH3ChainCard(null);
     } else {
       els.promptPanel.classList.remove('hidden');
+      renderMiniMaxH3ChainCard(m);
       const stageMode = renderGenerationPromptStages(m);
-      if (els.promptPanelNote && !stageMode) els.promptPanelNote.textContent = traceSoftNote || ultraPromptRecordNote(m) || '원본 입력 / 최종 CLIP / 부정 프롬프트를 분리 표시합니다.';
+      if (els.promptPanelNote && !stageMode) els.promptPanelNote.textContent = traceSoftNote || ultraPromptRecordNote(m) || h3ChainPromptNote(m) || '원본 입력 / 최종 CLIP / 부정 프롬프트를 분리 표시합니다.';
       const stageAnalysis = stageMode ? generationStageAnalysis(m) : null;
       const sourceTextForPanel = stageMode ? srcText : sourceDisplayText;
       const showLegacyPositive = !stageMode
@@ -12278,6 +12822,8 @@ function collectNestedWorkflowNodes(data){
       } else {
         meta.debug.push(scanData.mode === 'sampled' ? 'precise scan: no workflow/prompt JSON found in sampled ranges' : 'precise scan: no workflow/prompt JSON found in full file');
       }
+      if (meta.extra && meta.extra.h3Chain) delete meta.extra.h3Chain;
+      applyMiniMaxH3ChainRecord(meta, vr);
       if (!isPreciseScanStillValid(item, scanToken, true)) return;
       if (scanData.mode === 'full') {
         const vinfo = readVideoBasicInfo(arrayBuffer, container);
@@ -13852,10 +14398,11 @@ Object.assign(dict,{"실행":"Run","Ollama Vision 모델 입력":"Select Ollama 
 Object.assign(dict,{"입니다. Ollama는":". Ollama ","로컬 이미지 분석 전용":"supports local image analysis only","이며 API 키를 사용하지 않습니다. 일반 텍스트 모델은 이미지를 분석할 수 없습니다.":" and does not require an API key. Text-only models cannot analyze images.","실행":""});
 Object.assign(dict,{"👁 이미지 분석 불가\n선택한 Ollama 모델은 비전 후보가 아닙니다.\nVision 지원 모델을 선택하세요.":"👁 Image analysis unavailable\nThe selected Ollama model is not recognized as vision-capable.\nSelect a vision-capable model.","최종 CLIP 프롬프트 확인 불가\n원본 프롬프트가 CLIP 입력 전의 텍스트 변환/출력 경로를 거쳤지만, 저장된 이미지 메타데이터 안에서는 그 실행 결과 문자열을 확인할 수 없습니다.":"Final CLIP prompt unavailable\nThe original prompt passed through a text transformation/output path before CLIP, but the executed result was not saved in the image metadata.","Ollama Vision 모델을 선택하세요. Ollama 앱 실행 후 모델 목록을 불러오고 Vision 모델을 선택해야 합니다.":"Select an Ollama Vision model. Start Ollama, refresh the model list and select a vision-capable model.","분석 결과가 비어 있습니다. 안전 필터, 모델 응답 형식, 이미지 내용, 일시적 API 오류 중 하나일 수 있습니다.":"The analysis result is empty. This may be due to safety filtering, model response format, image content or a temporary API error."});
 const KEY='ultra_exif_reader_ui_language_v410';
-const EXCLUDED='#srcPrompt,#posPrompt,#negPrompt,#unconfirmedPrompt,#rawBox,#debugBox,#exifRawBox,#iaResult,#iaCustomInstruction,#iaApiKeyInput,#iaOllamaModelList .ia-ollama-model .model-name,#fileList .name,#fileList .mini,#fileList .meta2,#fileList img,#viewerImage,#viewerVideo,#iaImagePreview,.generation-stage-channel-text,.mono:not(.ia-result),#trResult,#trLayer .tr-result';
+const EXCLUDED='#srcPrompt,#posPrompt,#negPrompt,#unconfirmedPrompt,#rawBox,#debugBox,#exifRawBox,#iaResult,#iaCustomInstruction,#iaApiKeyInput,#iaOllamaModelList .ia-ollama-model .model-name,#fileList .name,#fileList .mini,#fileList .meta2,#fileList img,#viewerImage,#viewerVideo,#iaImagePreview,.generation-stage-channel-text,.h3-raw,.mono:not(.ia-result),#trResult,#trLayer .tr-result';
 const ATTR=['title','aria-label','placeholder','data-tip'];
 const original=new WeakMap(),attrOriginal=new WeakMap();
 let language='ko',isApplying=false,scheduled=false;
+Object.assign(dict,{"MiniMax H3 Chain 실행 기록":"MiniMax H3 Chain execution record","실행 기록 확인":"Record verified","확인 필요":"Needs review","계획만 있음":"Plan only","기록 읽기 실패":"Record unreadable","완료 장면":"Completed scenes","최종 프레임":"Final frames","기록된 길이":"Recorded length","계획 전체 프레임":"Planned total frames","장면 연결":"Scene transition","오디오":"Audio","실행 이름":"Run name","계획":"Plan","장면":"Scene","생성 프레임":"Generated frames","프롬프트 검증":"Prompt check","일치":"Match","불일치 — 제외":"Mismatch — excluded","해시 없음":"No hash","장면별 상이":"Varies by scene","최종 CLIP: H3 Chain 실행 기록(h3_manifest)에 저장된 장면별 실제 프롬프트 · SHA-256 검증":"Final CLIP: per-scene executed prompts stored in the H3 Chain record (h3_manifest) · SHA-256 verified","계획(h3_plan)과 실행 기록(h3_manifest)의 계획 해시가 달라 계획 정보는 사용하지 않았습니다.":"The plan (h3_plan) and the execution record (h3_manifest) have different plan hashes, so plan details were not used.","계획(h3_plan)을 읽을 수 없어 실행 기록만 표시합니다.":"The plan (h3_plan) could not be read; only the execution record is shown.","일부 장면의 계획 시드와 실행 기록 시드가 다릅니다. 실행 기록 값을 표시합니다.":"Some scene seeds differ between the plan and the execution record. Execution record values are shown.","장면별 최종 프레임 합계가 기록된 전체 프레임 수와 다릅니다.":"The sum of per-scene final frames differs from the recorded total.","프롬프트 해시가 맞지 않는 장면은 프롬프트에서 제외했습니다.":"Scenes whose prompt hash does not match were excluded from the prompt.","실제 영상 길이와 기록된 프레임 수가 맞지 않습니다. 편집되었거나 다른 영상일 수 있습니다.":"The actual video length does not match the recorded frame count. The video may have been edited or replaced.","Seed·Steps·프레임은 장면마다 실행 기록에 저장된 값이며, 아래 Positive에는 공통 프롬프트와 장면별 프롬프트가 원문 그대로 표시됩니다.":"Seed, Steps and frames are the values stored per scene in the execution record. Positive below shows the common prompt and each scene prompt exactly as recorded.","이 파일에는 장면 계획(h3_plan)만 있고 실행 기록(h3_manifest)이 없어 실제 실행된 프롬프트·Seed·Steps를 확정할 수 없습니다.":"This file contains only the scene plan (h3_plan) without an execution record (h3_manifest), so the executed prompts, Seed and Steps cannot be confirmed.","H3 Chain 기록이 있지만 손상되어 읽을 수 없습니다. 실제 실행된 프롬프트·Seed·Steps를 표시하지 않습니다.":"An H3 Chain record exists but is damaged and cannot be read. Executed prompts, Seed and Steps are not shown."});
 function blocked(el){
  if(!el||!el.closest)return false;
  // Only a built-in blank-prompt placeholder is localizable; never rewrite actual prompt text.
@@ -13918,6 +14465,9 @@ function translate(raw){
    else if((m=/^ZIP 내부 지원 파일의 실제 합계가 안전 한도 (.+)를 초과합니다\.$/.exec(t)))result='Actual total size of supported ZIP entries exceeds '+m[1]+'.';
    else if((m=/^(.+?)에서 생성된 이미지로, 생성 파라미터가 파일 내부 메타데이터에 포함되지 않은 경우가 많습니다\.$/.exec(t)))result='Images generated with '+m[1]+' often do not embed generation parameters.';
    else if((m=/^생성 단계 (\d+)$/.exec(t)))result='Generation Stage '+m[1];
+   else if((m=/^(\d+)~(\d+)번 장면은 계획만 있고 실행 기록이 없어 실행 결과로 표시하지 않습니다\.$/.exec(t)))result='Scenes '+m[1]+'–'+m[2]+' exist only in the plan and have no execution record, so they are not shown as results.';
+   else if((m=/^(\d+)번 장면은 계획만 있고 실행 기록이 없어 실행 결과로 표시하지 않습니다\.$/.exec(t)))result='Scene '+m[1]+' exists only in the plan and has no execution record, so it is not shown as a result.';
+   else if((m=/^장면 (\d+)개 계획 — 실행 결과로 표시하지 않음$/.exec(t)))result=m[1]+' planned scenes — not shown as results';
    else if((m=/^텍스트 조건 (\d+)$/.exec(t)))result='Text Condition '+m[1];
    else if((m=/^영상 캐시 (\d+)개 비움$/.exec(t)))result='Cleared '+m[1]+' cached videos';
    else if((m=/^ZIP 내부 파일 (\d+)개 추가$/.exec(t)))result='Added '+m[1]+' files from ZIP';
