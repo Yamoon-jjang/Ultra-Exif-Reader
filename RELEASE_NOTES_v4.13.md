@@ -9,7 +9,10 @@
 - 2^53을 넘는 큰 Seed도 끝자리까지 정확히 표시합니다.
 - 영상의 prompt JSON에 `NaN` 값이 있으면 prompt 전체가 버려져 모델·Seed·Steps가 틀리게 나오던 문제를 고쳤습니다. 정상 JSON은 기존과 똑같이 읽습니다.
 - 실행 기록이 없거나 손상된 H3 Chain 파일은 쓰이지 않은 옛 위젯 값 대신 "확인 불가"로 표시합니다.
-- H3 Chain 기록이나 `NaN` 값이 없는 파일은 v4.12와 동일하게 표시됩니다.
+- **CFG 판독 보완:** DualCFGGuider(`cfg_conds`)의 CFG를 읽고, BasicGuider만 쓰는 워크플로우(MiniMax H3, Flux Schnell 등)는 CFG 미적용 구조이므로 `1 (BasicGuider)`로 표시합니다.
+- 위젯 위치가 어긋나 CFG·Steps·Seed·Denoise·Sampler 칸에 `normal`·`randomize`·`fixed`·`euler` 같은 엉뚱한 값이 들어가던 문제를 막았습니다. 확인할 수 없으면 `-`로 표시합니다.
+- 프롬프트 속 `Title: Infinity War` 같은 문장이 `Title: null War`로 바뀌어 보이던 문제를 고쳤습니다.
+- 위 경우가 아닌 파일은 v4.12와 동일하게 표시됩니다.
 
 ### 🇺🇸 English
 - **MiniMax H3 Chain videos:** Reads the execution record (`h3_manifest`) of multi-scene H3 Chain videos and shows each executed scene's real prompt (SHA-256 verified), Seed, Steps and generated/final frame counts.
@@ -17,7 +20,10 @@
 - Seeds above 2^53 are shown exactly.
 - Video prompt JSON containing `NaN` tokens is no longer discarded, so model/Seed/Steps match the equivalent PNG result. Valid JSON is read exactly as before.
 - H3 Chain files without a usable execution record show "unavailable" instead of stale widget values.
-- Files without H3 Chain records or `NaN` tokens are shown exactly as in v4.12.
+- **CFG:** Reads DualCFGGuider `cfg_conds`; workflows that only use BasicGuider (MiniMax H3, Flux Schnell, etc.) show `1 (BasicGuider)`.
+- Misaligned widget values (`normal`, `randomize`, `fixed`, `euler`…) no longer appear in CFG/Steps/Seed/Denoise/Sampler; unknown values show `-`.
+- Prompt text such as `Title: Infinity War` is no longer altered to `Title: null War`.
+- Other files are shown exactly as in v4.12.
 
 ### 사용 방법 / Installation
 1. **Assets**에서 `Ultra_exif_reader_v4.13.zip`을 다운로드해 압축 해제합니다.

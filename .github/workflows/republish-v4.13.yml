@@ -1,0 +1,45 @@
+name: Republish Ultra Exif Reader v4.13
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/republish-v4.13.yml'
+permissions:
+  contents: write
+jobs:
+  republish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify package and build release ZIP
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          html = Path('Ultra_exif_reader_v4.13.html'); manual = Path('manual.txt')
+          t = html.read_text(encoding='utf-8')
+          assert '<title>Ultra Exif Reader v4.13</title>' in t and '<span class="title-badge">v4.13</span>' in t
+          assert 'isPlausibleGenerationParamValue' in t
+          assert 'Ultra Exif Reader v4.13' in manual.read_text(encoding='utf-8-sig')
+          with ZipFile('Ultra_exif_reader_v4.13.zip', 'w', compression=ZIP_DEFLATED, compresslevel=9) as z:
+              z.write(html, arcname='Ultra_exif_reader_v4.13.html')
+              z.write(manual, arcname='메뉴얼.txt')
+          with ZipFile('Ultra_exif_reader_v4.13.zip') as z:
+              assert z.testzip() is None
+              assert z.namelist() == ['Ultra_exif_reader_v4.13.html', '메뉴얼.txt']
+              assert z.read('Ultra_exif_reader_v4.13.html') == html.read_bytes()
+          print('v4.13 ZIP verified')
+          PY
+      - name: Move v4.13 tag and replace release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          git tag -f v4.13 "$GITHUB_SHA"
+          git push -f origin refs/tags/v4.13
+          gh release upload v4.13 ./Ultra_exif_reader_v4.13.zip --clobber
+          gh release edit v4.13 --notes-file RELEASE_NOTES_v4.13.md --title "Ultra Exif Reader v4.13" --latest
