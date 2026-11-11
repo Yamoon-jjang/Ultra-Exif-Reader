@@ -71,7 +71,9 @@
 - 2^53을 넘는 큰 Seed도 끝자리까지 정확히 표시
 - 영상 메타의 prompt JSON에 `NaN`이 들어 있어(일부 커스텀 노드) 통째로 버려지던 문제 수정 — 이미지(PNG)와 같은 결과로 표시
 - 실행 기록이 없거나 손상된 H3 Chain 파일은 추측 값 대신 "확인 불가"로 표시
-- H3 Chain 기록이나 `NaN` 값이 없는 파일은 v4.12와 동일하게 표시 (135개 파일 비교 중 해당 127개 파일의 내부 결과·화면 문구 변경 0건)
+- **CFG 판독 보완:** DualCFGGuider(`cfg_conds`) 지원, BasicGuider만 쓰는 워크플로우(H3·Flux Schnell 등)는 `1 (BasicGuider)` 표시
+- 위젯 위치 어긋남으로 CFG·Steps·Seed·Denoise·Sampler에 `normal`·`randomize`·`fixed` 등이 들어가던 문제 수정, 프롬프트 속 `Infinity`·`NaN` 단어 보존
+- 위 경우에 해당하지 않는 파일은 v4.12와 동일하게 표시 (공식 예제·시험 파일 225건 비교로 확인)
 
 ## v4.12 주요 개선 사항 (이전 버전)
 

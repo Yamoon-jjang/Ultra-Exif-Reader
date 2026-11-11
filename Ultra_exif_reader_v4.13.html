@@ -4415,13 +4415,27 @@
     return finish(undefined);
   }
 
+  // v4.13: 위젯 위치가 어긋나 들어온 값(randomize·fixed·euler·normal 등)을
+  // seed/steps/cfg/denoise/sampler/scheduler 칸에 넣지 않는다.
+  const GEN_PARAM_CONTROL_WORDS = /^(?:fixed|randomize|increment|decrement|enable|disable|true|false|none|null|undefined)$/i;
+  function isPlausibleGenerationParamValue(key, value){
+    if (value === undefined || value === null || typeof value === 'object') return false;
+    const t = String(value).trim();
+    if (!t || t === '-') return false;
+    if (key === 'seed') return /^\d+$/.test(t);
+    if (key === 'steps') return /^\d+(?:\.0+)?$/.test(t) && Number(t) > 0;
+    if (key === 'cfg' || key === 'denoise') return /^-?\d+(?:\.\d+)?(?:e[-+]?\d+)?$/i.test(t);
+    if (key === 'sampler' || key === 'scheduler') return !GEN_PARAM_CONTROL_WORDS.test(t) && !/^-?\d+(?:\.\d+)?$/.test(t);
+    return true;
+  }
+
   // ── 범용 파라미터 키 매핑 ─────────────────────────────────────────────────
   // 포트 이름 패턴 → meta 키 매핑
   // 노드 종류에 무관하게 이름 패턴이 맞으면 값을 수집
   const PARAM_RULES = [
     { key:'seed',      re: /^(seed|noise_seed|random_seed|base_seed)$/i },
     { key:'steps',     re: /^(steps|num_steps|step_count|total_steps)$/i },
-    { key:'cfg',       re: /^(cfg|cfg_scale|guidance|guidance_scale|scale|cfg_weight)$/i },
+    { key:'cfg',       re: /^(cfg|cfg_scale|guidance|guidance_scale|scale|cfg_weight|cfg_conds)$/i },
     { key:'sampler',   re: /^(sampler_name|sampler|sampling_method|sampler_type|sample_method|sample_algorithm|sampler_name_string)$/i },
     { key:'scheduler', re: /^(scheduler|scheduler_name|noise_schedule|schedule_type|sigma_schedule|sampler_scheduler)$/i },
     { key:'denoise',   re: /^(denoise|denoising_strength|denoise_strength)$/i },
@@ -4455,7 +4469,7 @@
       } else if (v !== null && v !== undefined && typeof v !== 'object'){
         val = v;
       }
-      if (val !== undefined && val !== null && String(val).trim() !== '')
+      if (val !== undefined && val !== null && String(val).trim() !== '' && isPlausibleGenerationParamValue(rule.key, val))
         meta[rule.key] = String(val);
     }
   }
@@ -7313,12 +7327,12 @@ function collectNestedWorkflowNodes(data){
     if (samplers.length){
       // denoise ≥ 1인 메인 샘플러 우선, 없으면 마지막 샘플러
       const main = samplers.find(s => { const d = parseFloat(s.denoise); return isNaN(d) || d >= 0.999; }) || samplers[samplers.length - 1];
-      if (main.seed      !== undefined) meta.seed      = String(main.seed);
-      if (main.steps     !== undefined) meta.steps     = String(main.steps);
-      if (main.cfg       !== undefined) meta.cfg       = String(main.cfg);
-      if (main.sampler   !== undefined) meta.sampler   = String(main.sampler);
-      if (main.scheduler !== undefined) meta.scheduler = String(main.scheduler);
-      if (main.denoise   !== undefined) meta.denoise   = String(main.denoise);
+      if (isPlausibleGenerationParamValue('seed', main.seed))           meta.seed      = String(main.seed);
+      if (isPlausibleGenerationParamValue('steps', main.steps))         meta.steps     = String(main.steps);
+      if (isPlausibleGenerationParamValue('cfg', main.cfg))             meta.cfg       = String(main.cfg);
+      if (isPlausibleGenerationParamValue('sampler', main.sampler))     meta.sampler   = String(main.sampler);
+      if (isPlausibleGenerationParamValue('scheduler', main.scheduler)) meta.scheduler = String(main.scheduler);
+      if (isPlausibleGenerationParamValue('denoise', main.denoise))     meta.denoise   = String(main.denoise);
     }
 
     // PiD built-in sampling is authoritative over a watermark blend mode or
@@ -8073,6 +8087,7 @@ function collectNestedWorkflowNodes(data){
     if (!node) return out;
     const inp = node.inputs || {};
     if (inp.cfg !== undefined) out.cfg = String(isWireRef(inp.cfg) ? resolveScalar(promptMap, inp.cfg, new Set()) ?? inp.cfg : inp.cfg);
+    else if (inp.cfg_conds !== undefined) out.cfg = String(isWireRef(inp.cfg_conds) ? resolveScalar(promptMap, inp.cfg_conds, new Set()) ?? inp.cfg_conds : inp.cfg_conds);
     if (inp.guidance !== undefined) out.guidance = String(isWireRef(inp.guidance) ? resolveScalar(promptMap, inp.guidance, new Set()) ?? inp.guidance : inp.guidance);
     if (inp.model) out.modelRef = inp.model;
     return out;
@@ -9042,11 +9057,11 @@ function collectNestedWorkflowNodes(data){
   }
 
   function parseComfy(text, meta){
-    const cleaned = String(text || '')
-      .replace(/:\s*(NaN|-?Infinity)/g, ': null')
-      .replace(/\[(NaN|-?Infinity)(,|\])/g, '[null$2')
-      .replace(/,\s*(NaN|-?Infinity)(,|\])/g, ', null$2');
-    let data = U.tryJson(cleaned);
+    // v4.13: 정상 JSON은 원문 그대로 파싱(프롬프트 속 "Title: Infinity War" 보존).
+    // 실패한 경우에만 문자열 밖의 NaN/Infinity 토큰을 null로 바꿔 다시 시도한다.
+    const rawText = String(text || '');
+    const parsedComfy = parseJsonRecoveringNonFinite(rawText);
+    let data = parsedComfy ? parsedComfy.value : null;
     if (!data || typeof data !== 'object') return false;
 
     // 문자열로 저장된 JSON 키를 파싱된 객체로 교체하는 헬퍼
@@ -9148,7 +9163,7 @@ function collectNestedWorkflowNodes(data){
       if ((!meta.textEncoder || meta.textEncoder === '-') && workflowPromptBackup.textEncoder && workflowPromptBackup.textEncoder !== '-') meta.textEncoder = workflowPromptBackup.textEncoder;
       if ((!meta.vae || meta.vae === '-' || meta.vae === '기본') && workflowPromptBackup.vae && workflowPromptBackup.vae !== '-' && workflowPromptBackup.vae !== '기본') meta.vae = workflowPromptBackup.vae;
       for (const key of ['sampler','scheduler','steps','cfg','seed','denoise','width','height','resolution']){
-        if ((!meta[key] || meta[key] === '-') && workflowPromptBackup[key] && workflowPromptBackup[key] !== '-') meta[key] = workflowPromptBackup[key];
+        if ((!meta[key] || meta[key] === '-') && workflowPromptBackup[key] && workflowPromptBackup[key] !== '-' && isPlausibleGenerationParamValue(key, workflowPromptBackup[key])) meta[key] = workflowPromptBackup[key];
       }
       if (workflowPromptBackup.sampling && typeof workflowPromptBackup.sampling === 'object'){
         meta.extra = meta.extra || {};
@@ -9165,6 +9180,17 @@ function collectNestedWorkflowNodes(data){
       }
     }
     if (workflow && promptMap) recoverUnconfirmedH3PromptEvidence(promptMap, workflow, meta);
+    // v4.13: 모든 guider 입력이 BasicGuider면 CFG를 쓰지 않는 구조(실질 1)이므로 그렇게 표시
+    if (promptMap && (!meta.cfg || meta.cfg === '-')){
+      const guiderTypes = [];
+      for (const node of Object.values(promptMap)){
+        const g = node?.inputs?.guider;
+        if (!isWireRef(g)) continue;
+        const gn = promptMap[String(g[0])];
+        guiderTypes.push(String(gn?.class_type || gn?.type || '').toLowerCase().replace(/[^a-z0-9]+/g, ''));
+      }
+      if (guiderTypes.length && guiderTypes.every(t => t === 'basicguider')) meta.cfg = '1 (BasicGuider)';
+    }
 
     // A subgraph may reference an outer STRING transform node (for example
     // UltraTranslatorTextNode) while the source textbox exists only in the full
